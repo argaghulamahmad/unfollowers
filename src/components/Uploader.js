@@ -89,8 +89,6 @@ const App = () => (
 
             onDrop(e) {
                 Array.from(e.dataTransfer.files).forEach(file => {
-                    console.log(file)
-
                     const reader = new FileReader();
                     reader.readAsText(file, "UTF-8");
 
