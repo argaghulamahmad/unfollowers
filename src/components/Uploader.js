@@ -62,7 +62,6 @@ const Uploader = () => (
                 band files
             </p>
         </Dragger>
-        <Data/>
     </div>
 );
 
