@@ -1,4 +1,4 @@
-import {useEffect, useState} from "@types/react";
+import {useEffect, useState} from "react";
 import {BackTop, Card, Divider, List, Select, Space} from "antd";
 import Text from "antd/es/typography/Text";
 
@@ -78,4 +78,4 @@ const Data = () => {
     );
 }
 
-export default Data()
+export default Data;
