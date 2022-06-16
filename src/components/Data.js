@@ -5,6 +5,7 @@ import Uploader from "./Uploader";
 
 const Data = () => {
     const [typeOfDataThatAsk, setTypeOfDataThatAsk] = useState('unfollowers');
+    const [lastUpdateAt, setLastUpdateAt] = useState("");
     const [profiles, setProfiles] = useState([]);
 
     const {Option} = Select;
@@ -20,6 +21,8 @@ const Data = () => {
     }
 
     useEffect(() => {
+        setLastUpdateAt(localStorage.getItem('lastUpdateAt'))
+
         switch (typeOfDataThatAsk) {
             case "unfollowers":
                 setProfiles(JSON.parse(localStorage.getItem('unfollower')))
@@ -62,7 +65,11 @@ const Data = () => {
                     </Divider>
                 </div>
                 <Text type="secondary" style={{paddingLeft: "5%"}} level={5}>Number
-                    of {typeOfDataThatAskSelectMap[typeOfDataThatAsk]} is {profiles.length}</Text>
+                    of {typeOfDataThatAskSelectMap[typeOfDataThatAsk]} is {profiles.length}.</Text>
+                {
+                    lastUpdateAt !== "" ? null :
+                        <Text type="secondary" level={5}> Last updated at {lastUpdateAt}.</Text>
+                }
                 <List style={{padding: "0 5% 0 5%"}} dataSource={profiles}
                       renderItem={username => (
                           <List.Item>

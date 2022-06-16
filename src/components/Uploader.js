@@ -54,6 +54,8 @@ const Uploader = () => (
                             localStorage.setItem('followback', JSON.stringify(followback));
                             localStorage.setItem('unfollower', JSON.stringify(unfollower));
                             localStorage.setItem('mutual', JSON.stringify(mutual));
+
+                            localStorage.setItem('lastUpdateAt', (new Date()).toDateString())
                         }
                         reader.onerror = function (evt) {
                             notification.error({
