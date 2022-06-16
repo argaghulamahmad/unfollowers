@@ -13,8 +13,12 @@ code {
 }
 
 
-#root > div > div > span > div.ant-upload-list.ant-upload-list-text {
+div.ant-upload-list.ant-upload-list-text {
   display: none;
+}
+
+div.ant-space.ant-space-horizontal.ant-space-align-center {
+  padding-bottom: 16px;
 }
 
 .App {
