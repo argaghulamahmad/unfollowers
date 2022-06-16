@@ -12,7 +12,7 @@ function App() {
                 <div className="App">
                     <div className="AppContent">
                         <Divider orientation="center">
-                            <h1>Teligobot</h1>
+                            <h1>Unfollowers</h1>
                             <Menu mode="horizontal">
                                 <Menu.Item key="home">
                                     <Link to="/">Home</Link>
