@@ -34,7 +34,6 @@ function Data() {
                 setProfiles(JSON.parse(localStorage.getItem('mutual')))
                 break;
             default:
-                // code block
                 console.error()
         }
     }, [typeOfDataThatAsk]);
@@ -101,21 +100,18 @@ const App = () => (
                             let result = evt.target.result;
                             switch (file.name) {
                                 case "followers.json":
-                                    // code block
                                     const {relationships_followers: followers} = JSON.parse(result)
                                     localStorage.setItem('followers', JSON.stringify(followers.map(item => {
                                         return item.string_list_data[0].value
                                     })));
                                     break;
                                 case "following.json":
-                                    // code block
                                     const {relationships_following: following} = JSON.parse(result)
                                     localStorage.setItem('following', JSON.stringify(following.map(item => {
                                         return item.string_list_data[0].value
                                     })));
                                     break;
                                 default:
-                                    // code block
                                     console.error()
                             }
                             const followers = JSON.parse(localStorage.getItem('followers'));
