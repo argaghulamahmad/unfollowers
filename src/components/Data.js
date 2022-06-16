@@ -1,6 +1,7 @@
 import {useEffect, useState} from "react";
 import {BackTop, Card, Divider, List, Select, Space} from "antd";
 import Text from "antd/es/typography/Text";
+import Uploader from "./Uploader";
 
 const Data = () => {
     const [typeOfDataThatAsk, setTypeOfDataThatAsk] = useState('unfollowers');
@@ -36,7 +37,7 @@ const Data = () => {
 
 
     return (
-        profiles && <div>
+        profiles ? <div>
             <Space size={8} direction="horizontal" style={{width: '100%', justifyContent: 'center'}}>
                 <Select
                     showSearch
@@ -74,7 +75,7 @@ const Data = () => {
             </Card>
 
             <BackTop/>
-        </div>
+        </div> : <Uploader/>
     );
 }
 
