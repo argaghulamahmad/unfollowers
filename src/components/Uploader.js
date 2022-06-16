@@ -1,5 +1,5 @@
 import {InboxOutlined} from '@ant-design/icons';
-import {Upload} from "antd";
+import {Upload, notification} from "antd";
 
 const {Dragger} = Upload;
 
@@ -23,16 +23,27 @@ const Uploader = () => (
                                     localStorage.setItem('followers', JSON.stringify(followers.map(item => {
                                         return item.string_list_data[0].value
                                     })));
+                                    notification.success({
+                                        message: 'File followers.json valid',
+                                        description: 'Followers record updated!',
+                                    });
                                     break;
                                 case "following.json":
                                     const {relationships_following: following} = JSON.parse(result)
                                     localStorage.setItem('following', JSON.stringify(following.map(item => {
                                         return item.string_list_data[0].value
                                     })));
+                                    notification.success({
+                                        message: 'File following.json valid',
+                                        description: 'Following record updated!',
+                                    });
                                     break;
                                 default:
-                                    console.error()
+                                    notification.error({
+                                        message: 'Not valid json file',
+                                    });
                             }
+
                             const followers = JSON.parse(localStorage.getItem('followers'));
                             const following = JSON.parse(localStorage.getItem('following'));
 
@@ -45,10 +56,14 @@ const Uploader = () => (
                             localStorage.setItem('mutual', JSON.stringify(mutual));
                         }
                         reader.onerror = function (evt) {
-                            console.error()
+                            notification.error({
+                                message: 'Not valid json file',
+                            });
                         }
                     } else {
-                        console.error()
+                        notification.error({
+                            message: 'Please drop following and followers json file',
+                        });
                     }
                 });
             },
@@ -56,11 +71,7 @@ const Uploader = () => (
             <p className="ant-upload-drag-icon">
                 <InboxOutlined/>
             </p>
-            <p className="ant-upload-text">Click or drag file to this area to upload</p>
-            <p className="ant-upload-hint">
-                Support for a single or bulk upload. Strictly prohibit from uploading company data or other
-                band files
-            </p>
+            <p className="ant-upload-text">Drop followers and following json file here</p>
         </Dragger>
     </div>
 );
