@@ -11,3 +11,8 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+
+#root > div > div > span > div.ant-upload-list.ant-upload-list-text {
+  display: none;
+}

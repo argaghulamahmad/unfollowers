@@ -22,7 +22,6 @@ function Data() {
     }
 
     useEffect(() => {
-        console.log("")
         switch (typeOfDataThatAsk) {
             case "unfollowers":
                 setProfiles(JSON.parse(localStorage.getItem('unfollower')))
