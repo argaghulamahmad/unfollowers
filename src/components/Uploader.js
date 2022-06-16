@@ -41,7 +41,7 @@ function Data() {
 
 
     return (
-        <div>
+        profiles && <div>
             <Space size={8} direction="horizontal" style={{width: '100%', justifyContent: 'center'}}>
                 <Select
                     showSearch
