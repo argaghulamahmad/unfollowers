@@ -75,6 +75,7 @@ const Uploader = () => (
             </p>
             <p className="ant-upload-text">Drop followers and following json file here</p>
         </Dragger>
+        {/* todo put a copy to ask the user to download data from instagram backup download request */}
     </div>
 );
 
