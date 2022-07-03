@@ -72,7 +72,7 @@ const Data = () => {
                     </Divider>
                 </div>
                 <Text type="secondary" style={{paddingLeft: "5%"}} level={5}>Number
-                    of {typeOfDataThatAskSelectMap[typeOfDataThatAsk]} is {profiles.length}. {profiles.length}</Text>
+                    of {typeOfDataThatAskSelectMap[typeOfDataThatAsk]} is {profiles.length}. {(profiles.length/mutual.length).toFixed(2)}</Text>
                 {
                     lastUpdateAt !== "" ? null :
                         <Text type="secondary" level={5}> Last updated at {lastUpdateAt}.</Text>
