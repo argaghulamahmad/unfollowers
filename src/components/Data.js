@@ -43,7 +43,7 @@ const Data = () => {
             default:
                 console.error()
         }
-    }, [typeOfDataThatAsk]);
+    }, [typeOfDataThatAsk, unfollower, followback, mutual]);
 
 
     return (
