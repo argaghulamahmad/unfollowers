@@ -7,6 +7,9 @@ const Data = () => {
     const [typeOfDataThatAsk, setTypeOfDataThatAsk] = useState('unfollowers');
     const [lastUpdateAt, setLastUpdateAt] = useState("");
     const [profiles, setProfiles] = useState([]);
+    const [followback, setFollowback] = useState([]);
+    const [unfollower, setUnfollower] = useState([]);
+    const [mutual, setMutual] = useState([]);
 
     const {Option} = Select;
 
@@ -23,15 +26,19 @@ const Data = () => {
     useEffect(() => {
         setLastUpdateAt(localStorage.getItem('lastUpdateAt'))
 
+        setUnfollower(JSON.parse(localStorage.getItem('unfollower')))
+        setFollowback(JSON.parse(localStorage.getItem('followback')))
+        setMutual(JSON.parse(localStorage.getItem('mutual')))
+
         switch (typeOfDataThatAsk) {
             case "unfollowers":
-                setProfiles(JSON.parse(localStorage.getItem('unfollower')))
+                setProfiles(unfollower)
                 break;
             case "followbacks":
-                setProfiles(JSON.parse(localStorage.getItem('followback')))
+                setProfiles(followback)
                 break;
             case "mutual":
-                setProfiles(JSON.parse(localStorage.getItem('mutual')))
+                setProfiles(mutual)
                 break;
             default:
                 console.error()
@@ -65,7 +72,7 @@ const Data = () => {
                     </Divider>
                 </div>
                 <Text type="secondary" style={{paddingLeft: "5%"}} level={5}>Number
-                    of {typeOfDataThatAskSelectMap[typeOfDataThatAsk]} is {profiles.length}.</Text>
+                    of {typeOfDataThatAskSelectMap[typeOfDataThatAsk]} is {profiles.length}. {profiles.length}</Text>
                 {
                     lastUpdateAt !== "" ? null :
                         <Text type="secondary" level={5}> Last updated at {lastUpdateAt}.</Text>
