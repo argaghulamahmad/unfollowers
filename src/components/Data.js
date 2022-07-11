@@ -18,6 +18,7 @@ const Data = () => {
         unfollowers: 'Unfollowers',
         followbacks: 'Followbacks',
         mutual: 'Mutuals',
+        allProfiles: 'All profiles',
     }
 
     const handleTypeOfDataThatAskChangeEvent = (value) => {
@@ -52,7 +53,7 @@ const Data = () => {
 
 
     return (
-        profiles ? <div>
+        profiles && profiles.length > 0 ? <div>
             <Space size={8} direction="horizontal" style={{width: '100%', justifyContent: 'center'}}>
                 <Select
                     showSearch
