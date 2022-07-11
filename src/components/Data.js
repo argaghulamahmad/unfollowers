@@ -10,6 +10,7 @@ const Data = () => {
     const [followback, setFollowback] = useState([]);
     const [unfollower, setUnfollower] = useState([]);
     const [mutual, setMutual] = useState([]);
+    const [allProfiles, setAllProfiles] = useState([]);
 
     const {Option} = Select;
 
@@ -29,6 +30,7 @@ const Data = () => {
         setUnfollower(JSON.parse(localStorage.getItem('unfollower')))
         setFollowback(JSON.parse(localStorage.getItem('followback')))
         setMutual(JSON.parse(localStorage.getItem('mutual')))
+        setAllProfiles(JSON.parse(localStorage.getItem('allProfiles')));
 
         switch (typeOfDataThatAsk) {
             case "unfollowers":
@@ -40,10 +42,13 @@ const Data = () => {
             case "mutual":
                 setProfiles(mutual)
                 break;
+            case "allProfiles":
+                setProfiles(allProfiles)
+                break;
             default:
                 console.error()
         }
-    }, [typeOfDataThatAsk, unfollower, followback, mutual]);
+    }, [typeOfDataThatAsk, unfollower, followback, mutual, allProfiles]);
 
 
     return (
@@ -62,6 +67,7 @@ const Data = () => {
                     <Option value="unfollowers">Unfollowers</Option>
                     <Option value="followbacks">Followbacks</Option>
                     <Option value="mutual">Mutuals</Option>
+                    <Option value="allProfiles">All Profiles</Option>
                 </Select>
             </Space>
 
