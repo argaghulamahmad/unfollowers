@@ -5,12 +5,10 @@ import Uploader from "./Uploader";
 
 const Data = () => {
     const [typeOfDataThatAsk, setTypeOfDataThatAsk] = useState('unfollowers');
+
     const [lastUpdateAt, setLastUpdateAt] = useState("");
+
     const [profiles, setProfiles] = useState([]);
-    const [followback, setFollowback] = useState([]);
-    const [unfollower, setUnfollower] = useState([]);
-    const [mutual, setMutual] = useState([]);
-    const [allProfiles, setAllProfiles] = useState([]);
 
     const {Option} = Select;
 
@@ -25,13 +23,20 @@ const Data = () => {
         setTypeOfDataThatAsk(value)
     }
 
+    const getPercentOfProfilesOfMutual = () => {
+        let mutual = JSON.parse(localStorage.getItem('mutual'));
+
+        let percentOfProfilesWithMutual = (profiles.length / mutual.length).toFixed(5);
+        return `${percentOfProfilesWithMutual}%`;
+    }
+
     useEffect(() => {
         setLastUpdateAt(localStorage.getItem('lastUpdateAt'))
 
-        setUnfollower(JSON.parse(localStorage.getItem('unfollower')))
-        setFollowback(JSON.parse(localStorage.getItem('followback')))
-        setMutual(JSON.parse(localStorage.getItem('mutual')))
-        setAllProfiles(JSON.parse(localStorage.getItem('allProfiles')));
+        let unfollower = JSON.parse(localStorage.getItem('unfollower'));
+        let followback = JSON.parse(localStorage.getItem('followback'));
+        let mutual = JSON.parse(localStorage.getItem('mutual'));
+        let allProfiles = JSON.parse(localStorage.getItem('allProfiles'));
 
         switch (typeOfDataThatAsk) {
             case "unfollowers":
@@ -49,7 +54,32 @@ const Data = () => {
             default:
                 console.error()
         }
-    }, [typeOfDataThatAsk, unfollower, followback, mutual, allProfiles]);
+    }, []);
+
+    //useEffect with typeOfDataThatAsk as dependency
+    useEffect(() => {
+        let unfollower = JSON.parse(localStorage.getItem('unfollower'));
+        let followback = JSON.parse(localStorage.getItem('followback'));
+        let mutual = JSON.parse(localStorage.getItem('mutual'));
+        let allProfiles = JSON.parse(localStorage.getItem('allProfiles'));
+
+        switch (typeOfDataThatAsk) {
+            case "unfollowers":
+                setProfiles(unfollower)
+                break;
+            case "followbacks":
+                setProfiles(followback)
+                break;
+            case "mutual":
+                setProfiles(mutual)
+                break;
+            case "allProfiles":
+                setProfiles(allProfiles)
+                break;
+            default:
+                console.error()
+        }
+    }, [typeOfDataThatAsk]);
 
 
     return (
@@ -79,7 +109,9 @@ const Data = () => {
                     </Divider>
                 </div>
                 <Text type="secondary" style={{paddingLeft: "5%"}} level={5}>Number
-                    of {typeOfDataThatAskSelectMap[typeOfDataThatAsk]} is {profiles.length}. {(profiles.length/mutual.length).toFixed(2)}</Text>
+                    of {typeOfDataThatAskSelectMap[typeOfDataThatAsk]} is {profiles.length}. {
+                        typeOfDataThatAsk === "unfollowers" ? `${getPercentOfProfilesOfMutual()} unfolllow of mutual.` : ""
+                    }</Text>
                 {
                     lastUpdateAt !== "" ? null :
                         <Text type="secondary" level={5}> Last updated at {lastUpdateAt}.</Text>
