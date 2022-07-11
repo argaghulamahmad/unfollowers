@@ -4,7 +4,9 @@ import Text from "antd/es/typography/Text";
 import Uploader from "./Uploader";
 
 const Data = () => {
-    const [typeOfDataThatAsk, setTypeOfDataThatAsk] = useState('unfollowers');
+    const defaultTypeOfDataThatAsked = "unfollowers";
+
+    const [typeOfDataThatAsk, setTypeOfDataThatAsk] = useState(defaultTypeOfDataThatAsked);
 
     const [lastUpdateAt, setLastUpdateAt] = useState("");
 
@@ -31,54 +33,41 @@ const Data = () => {
     }
 
     useEffect(() => {
-        setLastUpdateAt(localStorage.getItem('lastUpdateAt'))
+        const renderUnfollowerDataAtInit = () => {
+            setLastUpdateAt(localStorage.getItem('lastUpdateAt'))
+            let unfollower = JSON.parse(localStorage.getItem('unfollower'));
+            setProfiles(unfollower)
+        };
 
-        let unfollower = JSON.parse(localStorage.getItem('unfollower'));
-        let followback = JSON.parse(localStorage.getItem('followback'));
-        let mutual = JSON.parse(localStorage.getItem('mutual'));
-        let allProfiles = JSON.parse(localStorage.getItem('allProfiles'));
-
-        switch (typeOfDataThatAsk) {
-            case "unfollowers":
-                setProfiles(unfollower)
-                break;
-            case "followbacks":
-                setProfiles(followback)
-                break;
-            case "mutual":
-                setProfiles(mutual)
-                break;
-            case "allProfiles":
-                setProfiles(allProfiles)
-                break;
-            default:
-                console.error()
-        }
+        renderUnfollowerDataAtInit();
     }, []);
 
-    //useEffect with typeOfDataThatAsk as dependency
     useEffect(() => {
-        let unfollower = JSON.parse(localStorage.getItem('unfollower'));
-        let followback = JSON.parse(localStorage.getItem('followback'));
-        let mutual = JSON.parse(localStorage.getItem('mutual'));
-        let allProfiles = JSON.parse(localStorage.getItem('allProfiles'));
+        const setProfilesByTypeOfDataThatAsk = () => {
+            let unfollower = JSON.parse(localStorage.getItem('unfollower'));
+            let followback = JSON.parse(localStorage.getItem('followback'));
+            let mutual = JSON.parse(localStorage.getItem('mutual'));
+            let allProfiles = JSON.parse(localStorage.getItem('allProfiles'));
 
-        switch (typeOfDataThatAsk) {
-            case "unfollowers":
-                setProfiles(unfollower)
-                break;
-            case "followbacks":
-                setProfiles(followback)
-                break;
-            case "mutual":
-                setProfiles(mutual)
-                break;
-            case "allProfiles":
-                setProfiles(allProfiles)
-                break;
-            default:
-                console.error()
-        }
+            switch (typeOfDataThatAsk) {
+                case "unfollowers":
+                    setProfiles(unfollower)
+                    break;
+                case "followbacks":
+                    setProfiles(followback)
+                    break;
+                case "mutual":
+                    setProfiles(mutual)
+                    break;
+                case "allProfiles":
+                    setProfiles(allProfiles)
+                    break;
+                default:
+                    console.error()
+            }
+        };
+
+        setProfilesByTypeOfDataThatAsk();
     }, [typeOfDataThatAsk]);
 
 
