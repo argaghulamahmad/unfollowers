@@ -44,16 +44,21 @@ const Uploader = () => (
                                     });
                             }
 
-                            const followers = JSON.parse(localStorage.getItem('followers'));
-                            const following = JSON.parse(localStorage.getItem('following'));
+                            const storedAllProfiles = JSON.parse(localStorage.getItem('allProfiles')) || [];
+                            const followers = JSON.parse(localStorage.getItem('followers')) || [];
+                            const following = JSON.parse(localStorage.getItem('following')) || [];
 
                             const followback = followers.filter(username => !following.includes(username))
                             const unfollower = following.filter(username => !followers.includes(username))
                             const mutual = following.filter(username => followers.includes(username))
 
+                            let allProfiles = [...followers, ...following, storedAllProfiles];
+                            allProfiles = allProfiles.filter((item, index) => allProfiles.indexOf(item) === index);
+
                             localStorage.setItem('followback', JSON.stringify(followback));
                             localStorage.setItem('unfollower', JSON.stringify(unfollower));
                             localStorage.setItem('mutual', JSON.stringify(mutual));
+                            localStorage.setItem('allProfiles', JSON.stringify(allProfiles));
 
                             localStorage.setItem('lastUpdateAt', (new Date()).toDateString())
                         }
