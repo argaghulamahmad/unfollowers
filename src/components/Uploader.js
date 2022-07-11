@@ -78,10 +78,9 @@ const Uploader = () => (
             <p className="ant-upload-drag-icon">
                 <InboxOutlined/>
             </p>
-            <p className="ant-upload-text">Drop followers and following json file here</p>
+            <p className="ant-upload-text">Drop followers and following json file here.</p>
+            <p>Download first <a href="https://www.instagram.com/download/request/">here</a></p>
         </Dragger>
-        {/* todo put a copy to ask the user to download data from instagram backup download request */}
-        {/* Please, download the data backup first, okay? */}
     </div>
 );
 
