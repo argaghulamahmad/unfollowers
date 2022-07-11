@@ -52,8 +52,12 @@ const Uploader = () => (
                             const unfollower = following.filter(username => !followers.includes(username))
                             const mutual = following.filter(username => followers.includes(username))
 
-                            let allProfiles = [...followers, ...following, storedAllProfiles];
+                            let allProfiles = []
+                            allProfiles = storedAllProfiles.concat(followers, following);
                             allProfiles = allProfiles.filter((item, index) => allProfiles.indexOf(item) === index);
+                            allProfiles.sort(
+                                (a, b) => a.localeCompare(b)
+                            )
 
                             localStorage.setItem('followback', JSON.stringify(followback));
                             localStorage.setItem('unfollower', JSON.stringify(unfollower));
