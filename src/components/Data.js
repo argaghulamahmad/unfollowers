@@ -119,18 +119,12 @@ const Data = () => {
                 }
                 <List style={{padding: "0 5% 0 5%"}} dataSource={profiles}
                       renderItem={profile => (
-                          profile.username ?
-                              <List.Item>
-                                  <List.Item.Meta
-                                      title={<a href={`https://instagram.com/${profile.username}`} rel="noreferrer nofollow"
-                                                target="_blank">{profile.username}</a>}
-                                  />
-                              </List.Item> : <List.Item>
-                                  <List.Item.Meta
-                                      title={<a href={`https://instagram.com/${profile}`} rel="noreferrer nofollow"
-                                                target="_blank">{profile}</a>}
-                                  />
-                              </List.Item>
+                          <List.Item>
+                              <List.Item.Meta
+                                  title={<a href={`https://instagram.com/${profile.username}`} rel="noreferrer nofollow"
+                                            target="_blank">{profile.username}</a>}
+                              />
+                          </List.Item>
                       )}/>
             </Card>
 
