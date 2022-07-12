@@ -32,6 +32,14 @@ const Data = () => {
         return `${percentOfProfilesWithMutual}%`;
     }
 
+    const getDifferenceBetweenFollowerAndFollowing = () => {
+        let followers = JSON.parse(localStorage.getItem('followers'));
+        let following = JSON.parse(localStorage.getItem('following'));
+
+        let difference = followers.filter(username => !following.includes(username));
+        return difference.length;
+    }
+
     useEffect(() => {
         const renderUnfollowerDataAtInit = () => {
             setLastUpdateAt(localStorage.getItem('lastUpdateAt'))
@@ -92,6 +100,10 @@ const Data = () => {
             </Space>
 
             <Card>
+                <Text>
+                    Number of diff between follower and following: {getDifferenceBetweenFollowerAndFollowing()}
+                </Text>
+
                 <div style={{fontSize: "12px"}}>
                     <Divider orientation="left" plain>
                         {typeOfDataThatAskSelectMap[typeOfDataThatAsk]}
