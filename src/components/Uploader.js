@@ -8,14 +8,6 @@ class Profile {
         this.username = username;
         this.connectedAt = connectedAt;
     }
-
-    compare(profile) {
-        return this.connectedAt - profile.connectedAt;
-    }
-
-    toString() {
-        return `${this.username}`;
-    }
 }
 
 const Uploader = () => (
@@ -50,7 +42,6 @@ const Uploader = () => (
 
                                     allProfiles = storedAllProfiles.concat(followerProfiles);
                                     allProfiles = allProfiles.filter((item, index) => allProfiles.indexOf(item) === index);
-                                    allProfiles.sort((a, b) => a.compare(b));
                                     localStorage.setItem('allProfiles', JSON.stringify(allProfiles));
 
                                     localStorage.setItem('followerUsernames', JSON.stringify(followersJsonParsedResult.map(item => {
@@ -75,7 +66,6 @@ const Uploader = () => (
 
                                     allProfiles = storedAllProfiles.concat(followingProfiles);
                                     allProfiles = allProfiles.filter((item, index) => allProfiles.indexOf(item) === index);
-                                    allProfiles.sort((a, b) => a.compare(b));
                                     localStorage.setItem('allProfiles', JSON.stringify(allProfiles));
 
                                     localStorage.setItem('followingUsernames', JSON.stringify(followingJsonParsedResult.map(item => {
