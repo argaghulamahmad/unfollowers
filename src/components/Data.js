@@ -26,15 +26,15 @@ const Data = () => {
     }
 
     const getPercentOfProfilesOfMutual = () => {
-        let mutual = JSON.parse(localStorage.getItem('mutual'));
+        let mutual = JSON.parse(localStorage.getItem('mutualUsernames')) || [];
 
         let percentOfProfilesWithMutual = (profiles.length / mutual.length).toFixed(5);
         return `${percentOfProfilesWithMutual}%`;
     }
 
     const getDifferenceBetweenFollowerAndFollowing = () => {
-        let followers = JSON.parse(localStorage.getItem('followers'));
-        let following = JSON.parse(localStorage.getItem('following'));
+        let followers = JSON.parse(localStorage.getItem('followerUsernames'));
+        let following = JSON.parse(localStorage.getItem('followingUsernames'));
 
         let difference = followers.filter(username => !following.includes(username));
         return difference.length;
@@ -43,7 +43,7 @@ const Data = () => {
     useEffect(() => {
         const renderUnfollowerDataAtInit = () => {
             setLastUpdateAt(localStorage.getItem('lastUpdateAt'))
-            let unfollower = JSON.parse(localStorage.getItem('unfollower'));
+            let unfollower = JSON.parse(localStorage.getItem('unfollowerUsernames'));
             setProfiles(unfollower)
         };
 
@@ -118,13 +118,19 @@ const Data = () => {
                         <Text type="secondary" level={5}> Last updated at {lastUpdateAt}.</Text>
                 }
                 <List style={{padding: "0 5% 0 5%"}} dataSource={profiles}
-                      renderItem={username => (
-                          <List.Item>
-                              <List.Item.Meta
-                                  title={<a href={`https://instagram.com/${username}`} rel="noreferrer nofollow"
-                                            target="_blank">{username}</a>}
-                              />
-                          </List.Item>
+                      renderItem={profile => (
+                          profile.username ?
+                              <List.Item>
+                                  <List.Item.Meta
+                                      title={<a href={`https://instagram.com/${profile.username}`} rel="noreferrer nofollow"
+                                                target="_blank">{profile.username}</a>}
+                                  />
+                              </List.Item> : <List.Item>
+                                  <List.Item.Meta
+                                      title={<a href={`https://instagram.com/${profile}`} rel="noreferrer nofollow"
+                                                target="_blank">{profile}</a>}
+                                  />
+                              </List.Item>
                       )}/>
             </Card>
 
