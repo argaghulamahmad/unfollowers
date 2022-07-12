@@ -33,18 +33,18 @@ const Data = () => {
     }
 
     const getDifferenceBetweenFollowerAndFollowing = () => {
-        let followers = JSON.parse(localStorage.getItem('followerUsernames'));
-        let following = JSON.parse(localStorage.getItem('followingUsernames'));
+        let followersProfiles = JSON.parse(localStorage.getItem('followerUsernames'));
+        let followingProfiles = JSON.parse(localStorage.getItem('followingUsernames'));
 
-        let difference = followers.filter(username => !following.includes(username));
-        return difference.length;
+        let profilesDifference = followersProfiles.filter(username => !followingProfiles.includes(username));
+        return profilesDifference.length;
     }
 
     useEffect(() => {
         const renderUnfollowerDataAtInit = () => {
             setLastUpdateAt(localStorage.getItem('lastUpdateAt'))
-            let unfollower = JSON.parse(localStorage.getItem('unfollowerProfiles'));
-            setProfiles(unfollower)
+            let unfollowerProfiles = JSON.parse(localStorage.getItem('unfollowerProfiles'));
+            setProfiles(unfollowerProfiles)
         };
 
         renderUnfollowerDataAtInit();
