@@ -3,6 +3,21 @@ import {Upload, notification} from "antd";
 
 const {Dragger} = Upload;
 
+class Profile {
+    constructor(username, connectedAt) {
+        this.username = username;
+        this.connectedAt = connectedAt;
+    }
+
+    compare(profile) {
+        return this.connectedAt - profile.connectedAt;
+    }
+
+    toString() {
+        return `${this.username}`;
+    }
+}
+
 const Uploader = () => (
     <div>
         <Dragger {...{
@@ -17,28 +32,56 @@ const Uploader = () => (
                     if (file.name === "followers.json" || file.name === "following.json") {
                         reader.onload = function (evt) {
                             let result = evt.target.result;
+
+                            const storedAllProfiles = JSON.parse(localStorage.getItem('allProfiles')) || [];
+                            let allProfiles = []
+
                             switch (file.name) {
                                 case "followers.json":
-                                    const {relationships_followers: followers} = JSON.parse(result)
-                                    localStorage.setItem('followers', JSON.stringify(followers.map(item => {
-                                        return {
-                                            username: item.string_list_data[0].value,
-                                            timestamp: item.string_list_data[0].timestamp
-                                        }
+                                    const {relationships_followers: followersJsonParsedResult} = JSON.parse(result)
+
+                                    let followerProfiles = followersJsonParsedResult.map(item => {
+                                        let data = item.string_list_data[0];
+                                        let {value: username} = data;
+                                        let {timestamp: connectedAt} = data;
+                                        return new Profile(username, connectedAt)
+                                    });
+                                    localStorage.setItem('followerProfiles', JSON.stringify(followerProfiles));
+
+                                    allProfiles = storedAllProfiles.concat(followerProfiles);
+                                    allProfiles = allProfiles.filter((item, index) => allProfiles.indexOf(item) === index);
+                                    allProfiles.sort((a, b) => a.compare(b));
+                                    localStorage.setItem('allProfiles', JSON.stringify(allProfiles));
+
+                                    localStorage.setItem('followerUsernames', JSON.stringify(followersJsonParsedResult.map(item => {
+                                        return item.string_list_data[0].value
                                     })));
+
                                     notification.success({
                                         message: 'File followers.json valid',
                                         description: 'Followers record updated!',
                                     });
                                     break;
                                 case "following.json":
-                                    const {relationships_following: following} = JSON.parse(result)
-                                    localStorage.setItem('following', JSON.stringify(following.map(item => {
-                                        return {
-                                            username: item.string_list_data[0].value,
-                                            timestamp: item.string_list_data[0].timestamp
-                                        }
+                                    const {relationships_following: followingJsonParsedResult} = JSON.parse(result)
+
+                                    let followingProfiles = followingJsonParsedResult.map(item => {
+                                        let data = item.string_list_data[0];
+                                        let {value: username} = data;
+                                        let {timestamp: connectedAt} = data;
+                                        return new Profile(username, connectedAt)
+                                    });
+                                    localStorage.setItem('followingProfiles', JSON.stringify(followingProfiles));
+
+                                    allProfiles = storedAllProfiles.concat(followingProfiles);
+                                    allProfiles = allProfiles.filter((item, index) => allProfiles.indexOf(item) === index);
+                                    allProfiles.sort((a, b) => a.compare(b));
+                                    localStorage.setItem('allProfiles', JSON.stringify(allProfiles));
+
+                                    localStorage.setItem('followingUsernames', JSON.stringify(followingJsonParsedResult.map(item => {
+                                        return item.string_list_data[0].value
                                     })));
+
                                     notification.success({
                                         message: 'File following.json valid',
                                         description: 'Following record updated!',
@@ -50,25 +93,16 @@ const Uploader = () => (
                                     });
                             }
 
-                            const storedAllProfiles = JSON.parse(localStorage.getItem('allProfiles')) || [];
-                            const followers = JSON.parse(localStorage.getItem('followers')) || [];
-                            const following = JSON.parse(localStorage.getItem('following')) || [];
+                            const followerUsernames = JSON.parse(localStorage.getItem('followerUsernames')) || [];
+                            const followingUsernames = JSON.parse(localStorage.getItem('followingUsernames')) || [];
 
-                            const followback = followers.filter(username => !following.includes(username))
-                            const unfollower = following.filter(username => !followers.includes(username))
-                            const mutual = following.filter(username => followers.includes(username))
+                            const followbackUsernames = followerUsernames.filter(username => !followingUsernames.includes(username))
+                            const unfollowerUsernames = followingUsernames.filter(username => !followerUsernames.includes(username))
+                            const mutualUsernames = followingUsernames.filter(username => followerUsernames.includes(username))
 
-                            let allProfiles = []
-                            allProfiles = storedAllProfiles.concat(followers, following);
-                            allProfiles = allProfiles.filter((item, index) => allProfiles.indexOf(item) === index);
-                            allProfiles.sort((a, b) => {
-                                return a.timestamp - b.timestamp
-                            })
-
-                            localStorage.setItem('followback', JSON.stringify(followback));
-                            localStorage.setItem('unfollower', JSON.stringify(unfollower));
-                            localStorage.setItem('mutual', JSON.stringify(mutual));
-                            localStorage.setItem('allProfiles', JSON.stringify(allProfiles));
+                            localStorage.setItem('followbackUsernames', JSON.stringify(followbackUsernames));
+                            localStorage.setItem('unfollowerUsernames', JSON.stringify(unfollowerUsernames));
+                            localStorage.setItem('mutualUsernames', JSON.stringify(mutualUsernames));
 
                             localStorage.setItem('lastUpdateAt', (new Date()).toDateString())
                         }

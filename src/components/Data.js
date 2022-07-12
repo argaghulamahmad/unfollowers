@@ -52,9 +52,9 @@ const Data = () => {
 
     useEffect(() => {
         const setProfilesByTypeOfDataThatAsk = () => {
-            let unfollower = JSON.parse(localStorage.getItem('unfollower'));
-            let followback = JSON.parse(localStorage.getItem('followback'));
-            let mutual = JSON.parse(localStorage.getItem('mutual'));
+            let unfollower = JSON.parse(localStorage.getItem('unfollowerUsernames'));
+            let followback = JSON.parse(localStorage.getItem('followbackUsernames'));
+            let mutual = JSON.parse(localStorage.getItem('mutualUsernames'));
             let allProfiles = JSON.parse(localStorage.getItem('allProfiles'));
 
             switch (typeOfDataThatAsk) {
