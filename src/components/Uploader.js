@@ -27,6 +27,7 @@ const Uploader = () => (
 
                             const storedAllProfiles = JSON.parse(localStorage.getItem('allProfiles')) || [];
                             let allProfiles = []
+                            allProfiles = allProfiles.concat(storedAllProfiles)
 
                             switch (file.name) {
                                 case "followers.json":
@@ -40,7 +41,7 @@ const Uploader = () => (
                                     });
                                     localStorage.setItem('followerProfiles', JSON.stringify(followerProfiles));
 
-                                    allProfiles = storedAllProfiles.concat(followerProfiles);
+                                    allProfiles = allProfiles.concat(followerProfiles);
 
                                     localStorage.setItem('followerUsernames', JSON.stringify(followersJsonParsedResult.map(item => {
                                         return item.string_list_data[0].value
@@ -62,7 +63,7 @@ const Uploader = () => (
                                     });
                                     localStorage.setItem('followingProfiles', JSON.stringify(followingProfiles));
 
-                                    allProfiles = storedAllProfiles.concat(followingProfiles);
+                                    allProfiles = allProfiles.concat(followingProfiles);
 
                                     localStorage.setItem('followingUsernames', JSON.stringify(followingJsonParsedResult.map(item => {
                                         return item.string_list_data[0].value
@@ -84,6 +85,7 @@ const Uploader = () => (
                                 return map;
                             }, {});
 
+                            localStorage.setItem('allProfiles', JSON.stringify(allProfilesMap.values()));
                             localStorage.setItem('allProfilesMap', JSON.stringify(allProfilesMap));
 
                             const followerUsernames = JSON.parse(localStorage.getItem('followerUsernames')) || [];
