@@ -79,8 +79,12 @@ const Uploader = () => (
                                     });
                             }
 
-                            allProfiles = [...new Set(allProfiles.map(profile => profile.username))];
-                            localStorage.setItem('allProfiles', JSON.stringify(allProfiles));
+                            const allProfilesMap = allProfiles.reduce(function(map, profile) {
+                                map[profile.username] = profile;
+                                return map;
+                            }, {});
+
+                            localStorage.setItem('allProfilesMap', JSON.stringify(allProfilesMap));
 
                             const followerUsernames = JSON.parse(localStorage.getItem('followerUsernames')) || [];
                             const followingUsernames = JSON.parse(localStorage.getItem('followingUsernames')) || [];
@@ -95,19 +99,19 @@ const Uploader = () => (
                             localStorage.setItem('mutualUsernames', JSON.stringify(mutualUsernames));
 
                             const followbackProfiles = followbackUsernames.map(username => {
-                                const profile = allProfiles.find(profile => profile.username === username);
+                                const profile = allProfilesMap[username];
                                 return new Profile(username, profile.connectedAt)
                             })
                             localStorage.setItem('followbackProfiles', JSON.stringify(followbackProfiles));
 
                             const unfollowbackProfiles = unfollowerUsernames.map(username => {
-                                const profile = allProfiles.find(profile => profile.username === username);
+                                const profile = allProfilesMap[username];
                                 return new Profile(username, profile.connectedAt)
                             })
                             localStorage.setItem('unfollowbackProfiles', JSON.stringify(unfollowbackProfiles));
 
                             const mutualProfiles = mutualUsernames.map(username => {
-                                const profile = allProfiles.find(profile => profile.username === username);
+                                const profile = allProfilesMap[username];
                                 return new Profile(username, profile.connectedAt)
                             })
                             localStorage.setItem('mutualProfiles', JSON.stringify(mutualProfiles));
