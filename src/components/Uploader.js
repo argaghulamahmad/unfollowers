@@ -21,7 +21,10 @@ const Uploader = () => (
                                 case "followers.json":
                                     const {relationships_followers: followers} = JSON.parse(result)
                                     localStorage.setItem('followers', JSON.stringify(followers.map(item => {
-                                        return item.string_list_data[0].value
+                                        return {
+                                            username: item.string_list_data[0].value,
+                                            timestamp: item.string_list_data[0].timestamp
+                                        }
                                     })));
                                     notification.success({
                                         message: 'File followers.json valid',
@@ -31,7 +34,10 @@ const Uploader = () => (
                                 case "following.json":
                                     const {relationships_following: following} = JSON.parse(result)
                                     localStorage.setItem('following', JSON.stringify(following.map(item => {
-                                        return item.string_list_data[0].value
+                                        return {
+                                            username: item.string_list_data[0].value,
+                                            timestamp: item.string_list_data[0].timestamp
+                                        }
                                     })));
                                     notification.success({
                                         message: 'File following.json valid',
@@ -55,9 +61,9 @@ const Uploader = () => (
                             let allProfiles = []
                             allProfiles = storedAllProfiles.concat(followers, following);
                             allProfiles = allProfiles.filter((item, index) => allProfiles.indexOf(item) === index);
-                            allProfiles.sort(
-                                (a, b) => a.localeCompare(b)
-                            )
+                            allProfiles.sort((a, b) => {
+                                return a.timestamp - b.timestamp
+                            })
 
                             localStorage.setItem('followback', JSON.stringify(followback));
                             localStorage.setItem('unfollower', JSON.stringify(unfollower));
