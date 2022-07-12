@@ -40,6 +40,12 @@ const Data = () => {
         return profilesDifference.length;
     }
 
+    //function that convert epoch to date time
+    const epochToDateTime = (epoch) => {
+        let date = new Date(epoch * 1000);
+        return date.toDateString();
+    }
+
     useEffect(() => {
         const renderUnfollowerDataAtInit = () => {
             setLastUpdateAt(localStorage.getItem('lastUpdateAt'))
@@ -122,7 +128,7 @@ const Data = () => {
                           <List.Item>
                               <List.Item.Meta
                                   title={<a href={`https://instagram.com/${profile.username}`} rel="noreferrer nofollow"
-                                            target="_blank">{profile.username}</a>}
+                                            target="_blank">{profile.username} - {epochToDateTime(profile.connectedAt)}</a>}
                               />
                           </List.Item>
                       )}/>
