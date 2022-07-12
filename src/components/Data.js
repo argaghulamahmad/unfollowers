@@ -128,7 +128,8 @@ const Data = () => {
                           <List.Item>
                               <List.Item.Meta
                                   title={<a href={`https://instagram.com/${profile.username}`} rel="noreferrer nofollow"
-                                            target="_blank">{profile.username} - {epochToDateTime(profile.connectedAt)}</a>}
+                                            target="_blank">{profile.username}</a>}
+                                  description={epochToDateTime(profile.connectedAt)}
                               />
                           </List.Item>
                       )}/>
