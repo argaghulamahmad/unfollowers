@@ -109,7 +109,7 @@ const Uploader = () => (
                                 const profile = allProfilesMap[username];
                                 return new Profile(username, profile.connectedAt)
                             })
-                            localStorage.setItem('unfollowbackProfiles', JSON.stringify(unfollowbackProfiles));
+                            localStorage.setItem('unfollowerProfiles', JSON.stringify(unfollowbackProfiles));
 
                             const mutualProfiles = mutualUsernames.map(username => {
                                 const profile = allProfilesMap[username];
