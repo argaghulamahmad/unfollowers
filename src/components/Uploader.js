@@ -41,8 +41,6 @@ const Uploader = () => (
                                     localStorage.setItem('followerProfiles', JSON.stringify(followerProfiles));
 
                                     allProfiles = storedAllProfiles.concat(followerProfiles);
-                                    allProfiles = allProfiles.filter((item, index) => allProfiles.indexOf(item) === index);
-                                    localStorage.setItem('allProfiles', JSON.stringify(allProfiles));
 
                                     localStorage.setItem('followerUsernames', JSON.stringify(followersJsonParsedResult.map(item => {
                                         return item.string_list_data[0].value
@@ -65,8 +63,6 @@ const Uploader = () => (
                                     localStorage.setItem('followingProfiles', JSON.stringify(followingProfiles));
 
                                     allProfiles = storedAllProfiles.concat(followingProfiles);
-                                    allProfiles = allProfiles.filter((item, index) => allProfiles.indexOf(item) === index);
-                                    localStorage.setItem('allProfiles', JSON.stringify(allProfiles));
 
                                     localStorage.setItem('followingUsernames', JSON.stringify(followingJsonParsedResult.map(item => {
                                         return item.string_list_data[0].value
@@ -82,6 +78,9 @@ const Uploader = () => (
                                         message: 'Not valid json file',
                                     });
                             }
+
+                            allProfiles = [...new Set(allProfiles.map(profile => profile.username))];
+                            localStorage.setItem('allProfiles', JSON.stringify(allProfiles));
 
                             const followerUsernames = JSON.parse(localStorage.getItem('followerUsernames')) || [];
                             const followingUsernames = JSON.parse(localStorage.getItem('followingUsernames')) || [];
