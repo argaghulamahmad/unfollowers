@@ -81,12 +81,11 @@ const Uploader = () => (
                             }
 
                             const allProfilesMap = allProfiles.reduce(function(map, profile) {
-                                map[profile.username] = profile;
+                                map.set(profile.username, profile);
                                 return map;
-                            }, {});
+                            }, new Map());
 
-                            localStorage.setItem('allProfiles', JSON.stringify(allProfilesMap.values()));
-                            localStorage.setItem('allProfilesMap', JSON.stringify(allProfilesMap));
+                            localStorage.setItem('allProfiles', JSON.stringify(Array.from(allProfilesMap.values())));
 
                             const followerUsernames = JSON.parse(localStorage.getItem('followerUsernames')) || [];
                             const followingUsernames = JSON.parse(localStorage.getItem('followingUsernames')) || [];
