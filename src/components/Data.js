@@ -43,7 +43,7 @@ const Data = () => {
     useEffect(() => {
         const renderUnfollowerDataAtInit = () => {
             setLastUpdateAt(localStorage.getItem('lastUpdateAt'))
-            let unfollower = JSON.parse(localStorage.getItem('unfollowerUsernames'));
+            let unfollower = JSON.parse(localStorage.getItem('unfollowerProfiles'));
             setProfiles(unfollower)
         };
 
@@ -52,20 +52,20 @@ const Data = () => {
 
     useEffect(() => {
         const setProfilesByTypeOfDataThatAsk = () => {
-            let unfollower = JSON.parse(localStorage.getItem('unfollowerUsernames'));
-            let followback = JSON.parse(localStorage.getItem('followbackUsernames'));
-            let mutual = JSON.parse(localStorage.getItem('mutualUsernames'));
+            let unfollowerProfiles = JSON.parse(localStorage.getItem('unfollowerProfiles'));
+            let followbackProfiles = JSON.parse(localStorage.getItem('followbackProfiles'));
+            let mutualProfiles = JSON.parse(localStorage.getItem('mutualProfiles'));
             let allProfiles = JSON.parse(localStorage.getItem('allProfiles'));
 
             switch (typeOfDataThatAsk) {
                 case "unfollowers":
-                    setProfiles(unfollower)
+                    setProfiles(unfollowerProfiles)
                     break;
                 case "followbacks":
-                    setProfiles(followback)
+                    setProfiles(followbackProfiles)
                     break;
                 case "mutual":
-                    setProfiles(mutual)
+                    setProfiles(mutualProfiles)
                     break;
                 case "allProfiles":
                     setProfiles(allProfiles)
