@@ -112,9 +112,17 @@ const Data = () => {
 
                 <Space size={8} direction="horizontal" style={{width: '100%', justifyContent: 'center', margin: "20px 0"}}>
                     <Button type="primary" onClick={() => {
-                        let randomProfile = profiles[Math.floor(Math.random() * profiles.length)];
-                        let {username} = randomProfile;
-                        window.open(`https://www.instagram.com/${username}`, '_blank');
+                        const randomUsernames = [];
+
+                        for (let i = 0; i < 3; i++) {
+                            let randomProfile = profiles[Math.floor(Math.random() * profiles.length)];
+                            let {username} = randomProfile;
+                            randomUsernames.push(username);
+                        }
+
+                        randomUsernames.forEach(username => {
+                            window.open(`https://www.instagram.com/${username}`, '_blank');
+                        })
                     }}>I feel lucky</Button>
                 </Space>
 
