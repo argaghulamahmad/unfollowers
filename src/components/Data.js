@@ -114,7 +114,7 @@ const Data = () => {
                     <Button type="primary" onClick={() => {
                         const randomUsernames = [];
 
-                        for (let i = 0; i < 3; i++) {
+                        for (let i = 0; i < 5; i++) {
                             let randomProfile = profiles[Math.floor(Math.random() * profiles.length)];
                             let {username} = randomProfile;
                             randomUsernames.push(username);
