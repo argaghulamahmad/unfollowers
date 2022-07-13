@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {BackTop, Card, Divider, List, Select, Space} from "antd";
+import {BackTop, Button, Card, Divider, List, Select, Space} from "antd";
 import Text from "antd/es/typography/Text";
 import Uploader from "./Uploader";
 
@@ -109,6 +109,14 @@ const Data = () => {
                 <Text>
                     Number of diff between follower and following: {getDifferenceBetweenFollowerAndFollowing()}
                 </Text>
+
+                <Space size={8} direction="horizontal" style={{width: '100%', justifyContent: 'center', margin: "20px 0"}}>
+                    <Button type="primary" onClick={() => {
+                        let randomProfile = profiles[Math.floor(Math.random() * profiles.length)];
+                        let {username} = randomProfile;
+                        window.open(`https://www.instagram.com/${username}`, '_blank');
+                    }}>I feel lucky</Button>
+                </Space>
 
                 <div style={{fontSize: "12px"}}>
                     <Divider orientation="left" plain>
