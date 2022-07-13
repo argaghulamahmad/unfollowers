@@ -85,7 +85,12 @@ const Uploader = () => (
                                 return map;
                             }, new Map());
 
-                            localStorage.setItem('allProfiles', JSON.stringify(Array.from(allProfilesMap.values())));
+                            const allProfilesArray = Array.from(allProfilesMap.values());
+                            allProfilesArray.sort((a, b) => {
+                                return a.connectedAt - b.connectedAt;
+                            });
+
+                            localStorage.setItem('allProfiles', JSON.stringify(allProfilesArray));
 
                             const followerUsernames = JSON.parse(localStorage.getItem('followerUsernames')) || [];
                             const followingUsernames = JSON.parse(localStorage.getItem('followingUsernames')) || [];
