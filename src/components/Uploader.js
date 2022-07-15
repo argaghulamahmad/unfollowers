@@ -1,5 +1,6 @@
 import {InboxOutlined} from '@ant-design/icons';
 import {Upload, notification} from "antd";
+import {acceptedUploadedFilenames, followersJsonFileName, followingJsonFileName} from "../consts";
 
 const {Dragger} = Upload;
 
@@ -20,9 +21,8 @@ const Uploader = () => (
                 Array.from(e.dataTransfer.files).forEach(file => {
                     const reader = new FileReader();
                     reader.readAsText(file, "UTF-8");
-
-                    if (file.name === "followers.json" || file.name === "following.json") {
-                        reader.onload = function (evt) {
+                    if (acceptedUploadedFilenames.includes(file.name)) {
+                        reader.onload = evt => {
                             let result = evt.target.result;
 
                             const storedAllProfiles = JSON.parse(localStorage.getItem('allProfiles')) || [];
@@ -30,7 +30,7 @@ const Uploader = () => (
                             allProfiles = allProfiles.concat(storedAllProfiles)
 
                             switch (file.name) {
-                                case "followers.json":
+                                case followersJsonFileName:
                                     const {relationships_followers: followersJsonParsedResult} = JSON.parse(result)
 
                                     let followerProfiles = followersJsonParsedResult.map(item => {
@@ -52,7 +52,7 @@ const Uploader = () => (
                                         description: 'Followers record updated!',
                                     });
                                     break;
-                                case "following.json":
+                                case followingJsonFileName:
                                     const {relationships_following: followingJsonParsedResult} = JSON.parse(result)
 
                                     let followingProfiles = followingJsonParsedResult.map(item => {
@@ -80,7 +80,7 @@ const Uploader = () => (
                                     });
                             }
 
-                            const allProfilesMap = allProfiles.reduce(function(map, profile) {
+                            const allProfilesMap = allProfiles.reduce((map, profile) => {
                                 map.set(profile.username, profile);
                                 return map;
                             }, new Map());
@@ -124,7 +124,7 @@ const Uploader = () => (
 
                             localStorage.setItem('lastUpdateAt', (new Date()).toDateString())
                         }
-                        reader.onerror = function (evt) {
+                        reader.onerror = () => {
                             notification.error({
                                 message: 'Not valid json file',
                             });
