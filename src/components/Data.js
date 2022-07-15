@@ -2,6 +2,7 @@ import {useEffect, useState} from "react";
 import {BackTop, Button, Card, Divider, List, Select, Space} from "antd";
 import Text from "antd/es/typography/Text";
 import Uploader from "./Uploader";
+import {typeOfDataThatAskSelectMap} from "../consts";
 
 const Data = () => {
     const defaultTypeOfDataThatAsked = "unfollowers";
@@ -13,13 +14,6 @@ const Data = () => {
     const [profiles, setProfiles] = useState([]);
 
     const {Option} = Select;
-
-    const typeOfDataThatAskSelectMap = {
-        unfollowers: 'Unfollowers',
-        followbacks: 'Followbacks',
-        mutual: 'Mutuals',
-        allProfiles: 'All profiles',
-    }
 
     const handleTypeOfDataThatAskChangeEvent = (value) => {
         setTypeOfDataThatAsk(value)
@@ -40,7 +34,6 @@ const Data = () => {
         return profilesDifference.length;
     }
 
-    //function that convert epoch to date time
     const epochToDateTime = (epoch) => {
         let date = new Date(epoch * 1000);
         return date.toDateString();
@@ -110,7 +103,8 @@ const Data = () => {
                     Number of diff between follower and following: {getDifferenceBetweenFollowerAndFollowing()}
                 </Text>
 
-                <Space size={8} direction="horizontal" style={{width: '100%', justifyContent: 'center', margin: "20px 0"}}>
+                <Space size={8} direction="horizontal"
+                       style={{width: '100%', justifyContent: 'center', margin: "20px 0"}}>
                     <Button type="primary" onClick={() => {
                         const randomUsernames = [];
 

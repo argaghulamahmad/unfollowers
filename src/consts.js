@@ -3,10 +3,18 @@ const followingJsonFileName = 'following.json';
 
 const acceptedUploadedFilenames = [followersJsonFileName, followingJsonFileName];
 
-//export all variables in this file
+const typeOfDataThatAskSelectMap = {
+    unfollowers: 'Unfollowers',
+    followbacks: 'Followbacks',
+    mutual: 'Mutuals',
+    allProfiles: 'All profiles',
+}
+
 export {
     followersJsonFileName,
     followingJsonFileName,
 
-    acceptedUploadedFilenames
+    acceptedUploadedFilenames,
+
+    typeOfDataThatAskSelectMap
 }
