@@ -1,5 +1,5 @@
 import {InboxOutlined} from '@ant-design/icons';
-import {Upload, notification} from "antd";
+import {Upload, notification, Button} from "antd";
 import {acceptedUploadedFilenames, followersJsonFileName, followingJsonFileName} from "../consts";
 
 const {Dragger} = Upload;
@@ -13,6 +13,9 @@ class Profile {
 
 const Uploader = () => (
     <div>
+        <Button type="primary" style={{width: '60%', margin: '20px'}} onClick={() => {
+            window.open('https://www.instagram.com/download/request/');
+        }}>Download files here</Button>
         <Dragger {...{
             name: 'file',
             multiple: true,
@@ -141,7 +144,6 @@ const Uploader = () => (
                 <InboxOutlined/>
             </p>
             <p className="ant-upload-text">Drop followers and following json file here.</p>
-            <p>Download first <a href="https://www.instagram.com/download/request/">here</a></p>
         </Dragger>
     </div>
 );
