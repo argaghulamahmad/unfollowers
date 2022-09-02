@@ -14,10 +14,23 @@ class Profile {
 const Uploader = () => (
     <div>
         <div>
-            Upload your followers and following data to get started!
+            {
+                localStorage.getItem('lastUpdateAt') ? (
+                    <div>
+                        Last update at {localStorage.getItem('lastUpdateAt')}
+                    </div>
+                ) : (
+                    <div>
+                        Upload your followers and following data to get started!
+                    </div>
+                )
+            }
         </div>
         <div>
             <Divider orientation="left">Current Data</Divider>
+            <Space direction="vertical" size="middle" style={{display: 'flex'}}>
+                //todo show all local storage items
+            </Space>
         </div>
         <div>
             <Divider orientation="left">Upload Data</Divider>
