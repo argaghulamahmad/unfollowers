@@ -1,30 +1,61 @@
-import {Button, Form, InputNumber, } from 'antd';
+import {Button, Form, InputNumber,} from 'antd';
+import {notification} from 'antd';
+
 
 const Config = () => {
     return (
-        <Form
-            name="validate_other"
-            initialValues={{
-                'input-number': 7,
-            }}
-        >
-            <Form.Item label="Feel Lucky Generator">
-                <Form.Item name="input-number" noStyle>
-                    <InputNumber min={1} max={20} />
+        <div>
+            <Form
+                name="validate_other"
+                initialValues={{
+                    'input-number': 7,
+                }}
+                onFinish={() => {
+                    notification.success({
+                        message: 'Success',
+                        description: 'Config updated!',
+                    });}
+                }
+            >
+                <Form.Item label="Feel Lucky Generator">
+                    <Form.Item name="input-number" noStyle>
+                        <InputNumber min={1} max={20}/>
+                    </Form.Item>
+                    <span className="ant-form-text"> profiles</span>
                 </Form.Item>
-                <span className="ant-form-text"> profiles</span>
-            </Form.Item>
-            <Form.Item>
-                <Button type="danger" style={{width: '100%'}}>
+                <Form.Item>
+                    <Button type="primary" style={{width: '100%'}}>
+                        Save Config
+                    </Button>
+                </Form.Item>
+            </Form>
+
+            <div>
+                <Button type="danger" style={{width: '100%'}} onClick={
+                    () => {
+                        localStorage.removeItem("visitedRandomProfiles");
+                        notification.success({
+                            message: 'Success',
+                            description: 'Visited Random Profiles data updated!',
+                        })
+                    }
+                }>
                     Reset feel lucky generator
                 </Button>
-            </Form.Item>
-            <Form.Item>
-                <Button type="primary" style={{width: '100%'}}>
-                    Save Config
+                <div style={{marginBottom: "12px"}}></div>
+                <Button type="danger" style={{width: '100%'}} onClick={
+                    () => {
+                        localStorage.clear();
+                        notification.success({
+                            message: 'Success',
+                            description: 'All data cleared!',
+                        })
+                    }
+                }>
+                    Reset all data
                 </Button>
-            </Form.Item>
-        </Form>
+            </div>
+        </div>
     );
 }
 
