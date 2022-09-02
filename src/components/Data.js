@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {BackTop, Button, Card, Col, Divider, List, Row, Select, Space} from "antd";
+import {BackTop, Button, Card, Col, Divider, List, notification, Row, Select, Space} from "antd";
 import Text from "antd/es/typography/Text";
 import Uploader from "./Uploader";
 import {typeOfDataThatAskSelectMap} from "../consts";
@@ -17,6 +17,10 @@ const Data = () => {
 
     const handleTypeOfDataThatAskChangeEvent = (value) => {
         setTypeOfDataThatAsk(value)
+        notification.success({
+            message: 'Success',
+            description: `${profiles.length} profiles loaded!`,
+        })
     }
 
     const getPercentOfProfilesOfMutual = () => {
@@ -77,9 +81,18 @@ const Data = () => {
         setProfilesByTypeOfDataThatAsk();
     }, [typeOfDataThatAsk]);
 
+    const homeTitleWordingMap = {
+        "unfollowers": "unfollow",
+        "followbacks": "follow back",
+        "mutual": "mutual with you",
+    }
 
     return (
         profiles && profiles.length > 0 ? <div>
+            <div>
+                See all {profiles.length} profiles that {homeTitleWordingMap[typeOfDataThatAsk]} you!
+            </div>
+
             <Divider orientation="left">Stats</Divider>
             <Space direction="vertical" size="middle" style={{display: 'flex'}}>
                 <Row gutter={16}>
