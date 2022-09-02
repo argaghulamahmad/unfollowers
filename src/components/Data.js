@@ -81,26 +81,31 @@ const Data = () => {
     return (
         profiles && profiles.length > 0 ? <div>
             <Divider orientation="left">Stats</Divider>
-            <Row gutter={16}>
-                <Col span={8}>
-                    <Card title="Unfollowers" bordered={false}>
-                        {JSON.parse(localStorage.getItem('unfollowerProfiles')).length} profiles
-                    </Card>
-                </Col>
-                <Col span={8}>
-                    <Card title="Mutuals" bordered={false}>
-                        {JSON.parse(localStorage.getItem('mutualProfiles')).length} profiles
-                    </Card>
-                </Col>
-                <Col span={8}>
-                    <Card title="Followbacks" bordered={false}>
-                        {JSON.parse(localStorage.getItem('unfollowerProfiles')).length} profiles
-                    </Card>
-                </Col>
-            </Row>
+            <Space direction="vertical" size="middle" style={{display: 'flex'}}>
+                <Row gutter={16}>
+                    <Col span={8}>
+                        <Card hoverable title="Unfollowers" bordered={true}>
+                            {JSON.parse(localStorage.getItem('unfollowerProfiles')).length} profiles
+                        </Card>
+                    </Col>
+                    <Col span={8}>
+                        <Card hoverable title="Mutuals" bordered={true}>
+                            {JSON.parse(localStorage.getItem('mutualProfiles')).length} profiles
+                        </Card>
+                    </Col>
+                    <Col span={8}>
+                        <Card hoverable title="Followbacks" bordered={true}>
+                            {JSON.parse(localStorage.getItem('unfollowerProfiles')).length} profiles
+                        </Card>
+                    </Col>
+                </Row>
+                <Card hoverable={true} style={{width: '100%'}}>
+                    {getDifferenceBetweenFollowerAndFollowing()} profiles in follower that not in following
+                </Card>
+            </Space>
 
+            <Divider orientation="left">Profiles</Divider>
             <Space size="middle" direction="vertical">
-                <Divider orientation="left">Profiles</Divider>
 
                 <Button type="primary"
                         style={{width: '100%'}}
@@ -144,10 +149,6 @@ const Data = () => {
                 </Select>
 
                 <Card>
-                    <Text>
-                        Number of diff between follower and following: {getDifferenceBetweenFollowerAndFollowing()}
-                    </Text>
-
                     <div style={{fontSize: "12px"}}>
                         <Divider orientation="left" plain>
                             {typeOfDataThatAskSelectMap[typeOfDataThatAsk]}
