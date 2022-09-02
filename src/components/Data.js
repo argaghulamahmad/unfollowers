@@ -128,15 +128,29 @@ const Data = () => {
                         onClick={() => {
                             let randomUsernames = [];
 
-                            let visitedRandomUsernames = localStorage.getItem('visitedRandomUsernames') || [];
+                            let visitedRandomUsernames = JSON.parse(localStorage.getItem('visitedRandomUsernames')) || [];
                             let unvisitedRandomProfiles = profiles.filter(profile => !visitedRandomUsernames.includes(profile.username));
                             let unvisitedRandomProfileUsernames = unvisitedRandomProfiles.map(profile => profile.username);
                             let uniqueUnvisitedRandomProfileUsernames = [...new Set(unvisitedRandomProfileUsernames)];
 
-                            let feelLuckyGeneratorCounts = JSON.parse(localStorage.getItem('config')).feelLuckyGeneratorCounts || 5;
+                            let feelLuckyGeneratorCounts = JSON.parse(localStorage.getItem('config'))?.feelLuckyGeneratorCounts || 5;
                             for (let i = 0; i < feelLuckyGeneratorCounts; i++) {
-                                let randomProfileUsername = uniqueUnvisitedRandomProfileUsernames[Math.floor(Math.random() * uniqueUnvisitedRandomProfileUsernames.length)];
-                                randomUsernames.push(randomProfileUsername);
+                                if (uniqueUnvisitedRandomProfileUsernames.length > 0) {
+                                    let randomProfileUsername = uniqueUnvisitedRandomProfileUsernames.splice(Math.floor(Math.random() * uniqueUnvisitedRandomProfileUsernames.length), 1)[0];
+                                    randomUsernames.push(randomProfileUsername);
+                                }
+                            }
+
+                            if (randomUsernames.length > 0) {
+                                notification.success({
+                                    message: 'Success',
+                                    description: `${randomUsernames.length} ${typeOfDataThatAsk} profiles loaded!`,
+                                })
+                            } else {
+                                notification.info({
+                                    message: 'There is no more profiles to load!',
+                                    description: `There is no more ${typeOfDataThatAsk} profiles to load! Reset data to load random profiles again.`,
+                                })
                             }
 
                             visitedRandomUsernames = visitedRandomUsernames.concat(randomUsernames);
