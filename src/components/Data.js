@@ -5,7 +5,7 @@ import Uploader from "./Uploader";
 import {typeOfDataThatAskSelectMap} from "../consts";
 
 const Data = () => {
-    const defaultTypeOfDataThatAsked = "unfollowers";
+    const defaultTypeOfDataThatAsked = localStorage.getItem("typeOfDataThatAsked") || "unfollowers";
 
     const [typeOfDataThatAsk, setTypeOfDataThatAsk] = useState(defaultTypeOfDataThatAsked);
 
@@ -16,6 +16,7 @@ const Data = () => {
     const {Option} = Select;
 
     const handleTypeOfDataThatAskChangeEvent = (value) => {
+        localStorage.setItem("typeOfDataThatAsked", value);
         setTypeOfDataThatAsk(value)
         notification.success({
             message: 'Success',
