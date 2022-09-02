@@ -18,7 +18,7 @@ const Uploader = () => (
             {
                 localStorage.getItem('lastUpdateAt') ? (
                     <div>
-                        Last update at {localStorage.getItem('lastUpdateAt')}
+                        Last update at {(new Date(JSON.parse(localStorage.getItem('lastUpdateAt')))).toString()}
                     </div>
                 ) : (
                     <div>
@@ -148,7 +148,7 @@ const Uploader = () => (
                                     })
                                     localStorage.setItem('mutualProfiles', JSON.stringify(mutualProfiles));
 
-                                    localStorage.setItem('lastUpdateAt', (new Date()).toDateString())
+                                    localStorage.setItem('lastUpdateAt', JSON.stringify((new Date()).getTime()))
                                 }
                                 reader.onerror = () => {
                                     notification.error({
