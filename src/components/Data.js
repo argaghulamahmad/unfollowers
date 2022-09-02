@@ -106,7 +106,7 @@ const Data = () => {
                 <Space size={8} direction="horizontal"
                        style={{width: '100%', justifyContent: 'center', margin: "20px 0"}}>
                     <Button type="primary" onClick={() => {
-                        const randomUsernames = [];
+                        let randomUsernames = [];
 
                         let visitedRandomUsernames = localStorage.getItem('randomUsernames', JSON.stringify(randomUsernames))  || [];
                         let unvisitedRandomProfiles = profiles.filter(profile => !visitedRandomUsernames.includes(profile.username));
@@ -116,6 +116,7 @@ const Data = () => {
                             let {username} = randomProfile;
                             randomUsernames.push(username);
                         }
+                        randomUsernames = [...new Set(randomUsernames)];
 
                         visitedRandomUsernames = visitedRandomUsernames.concat(randomUsernames);
                         localStorage.setItem('randomUsernames', JSON.stringify(visitedRandomUsernames));
