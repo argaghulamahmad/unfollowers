@@ -8,9 +8,10 @@ const Config = () => {
             <Form
                 name="validate_other"
                 initialValues={{
-                    'input-number': 7,
+                    'feelLuckyGenerator': 7,
                 }}
-                onFinish={() => {
+                onFinish={(values   ) => {
+                    console.log('Received values of form: ', values);
                     notification.success({
                         message: 'Success',
                         description: 'Config updated!',
@@ -18,13 +19,13 @@ const Config = () => {
                 }
             >
                 <Form.Item label="Feel Lucky Generator">
-                    <Form.Item name="input-number" noStyle>
+                    <Form.Item name="feelLuckyGenerator" noStyle>
                         <InputNumber min={1} max={20}/>
                     </Form.Item>
                     <span className="ant-form-text"> profiles</span>
                 </Form.Item>
                 <Form.Item>
-                    <Button type="primary" style={{width: '100%'}}>
+                    <Button type="primary" style={{width: '100%'}} htmlType="submit">
                         Save Config
                     </Button>
                 </Form.Item>
