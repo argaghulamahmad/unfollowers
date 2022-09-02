@@ -149,7 +149,7 @@ const Data = () => {
                             } else {
                                 notification.info({
                                     message: 'There is no more profiles to load!',
-                                    description: `There is no more ${typeOfDataThatAsk} profiles to load! Reset data to load random profiles again.`,
+                                    description: `There is no more ${typeOfDataThatAsk} profiles to load! Reset feel lucky generator data to load random profiles again.`,
                                 })
                             }
 
