@@ -14,10 +14,14 @@ class Profile {
 const Uploader = () => (
     <div>
         <div>
+            Upload your followers and following data to get started!
+        </div>
+        <div>
+            <Divider orientation="left">Current Data</Divider>
+        </div>
+        <div>
+            <Divider orientation="left">Upload Data</Divider>
             <Space direction="vertical" size="middle" style={{display: 'flex'}}>
-                <div>
-                    Upload your followers and following data to get started!
-                </div>
 
                 <Button type="primary" style={{width: '100%'}} onClick={() => {
                     window.open('https://www.instagram.com/download/request/');
