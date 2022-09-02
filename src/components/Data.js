@@ -102,6 +102,30 @@ const Data = () => {
             <Space size="middle" direction="vertical">
                 <Divider orientation="left">Profiles</Divider>
 
+                <Button type="primary"
+                        style={{width: '100%'}}
+                        onClick={() => {
+                            let randomUsernames = [];
+
+                            let visitedRandomUsernames = localStorage.getItem('visitedRandomUsernames') || [];
+                            let unvisitedRandomProfiles = profiles.filter(profile => !visitedRandomUsernames.includes(profile.username));
+                            let unvisitedRandomProfileUsernames = unvisitedRandomProfiles.map(profile => profile.username);
+                            let uniqueUnvisitedRandomProfileUsernames = [...new Set(unvisitedRandomProfileUsernames)];
+
+                            let feelLuckyGeneratorCounts = JSON.parse(localStorage.getItem('config')).feelLuckyGeneratorCounts || 5;
+                            for (let i = 0; i < feelLuckyGeneratorCounts; i++) {
+                                let randomProfileUsername = uniqueUnvisitedRandomProfileUsernames[Math.floor(Math.random() * uniqueUnvisitedRandomProfileUsernames.length)];
+                                randomUsernames.push(randomProfileUsername);
+                            }
+
+                            visitedRandomUsernames = visitedRandomUsernames.concat(randomUsernames);
+                            localStorage.setItem('visitedRandomUsernames', JSON.stringify(visitedRandomUsernames));
+
+                            randomUsernames.forEach(username => {
+                                window.open(`https://www.instagram.com/${username}`, '_blank');
+                            })
+                        }}>I feel lucky</Button>
+
                 <Select
                     showSearch
                     placeholder="Find"
@@ -111,6 +135,7 @@ const Data = () => {
                     filterOption={(input, option) =>
                         option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                     }
+                    style={{width: '100%'}}
                 >
                     <Option value="unfollowers">Unfollowers</Option>
                     <Option value="followbacks">Followbacks</Option>
@@ -122,31 +147,6 @@ const Data = () => {
                     <Text>
                         Number of diff between follower and following: {getDifferenceBetweenFollowerAndFollowing()}
                     </Text>
-
-                    <Space size={8} direction="horizontal"
-                           style={{width: '100%', justifyContent: 'center', margin: "20px 0"}}>
-                        <Button type="primary" onClick={() => {
-                            let randomUsernames = [];
-
-                            let visitedRandomUsernames = localStorage.getItem('visitedRandomUsernames') || [];
-                            let unvisitedRandomProfiles = profiles.filter(profile => !visitedRandomUsernames.includes(profile.username));
-
-                            let feelLuckyGeneratorCounts = JSON.parse(localStorage.getItem('config')).feelLuckyGeneratorCounts || 5;
-                            for (let i = 0; i < feelLuckyGeneratorCounts; i++) {
-                                let randomProfile = unvisitedRandomProfiles[Math.floor(Math.random() * unvisitedRandomProfiles.length)];
-                                let {username} = randomProfile;
-                                randomUsernames.push(username);
-                            }
-                            randomUsernames = [...new Set(randomUsernames)];
-
-                            visitedRandomUsernames = visitedRandomUsernames.concat(randomUsernames);
-                            localStorage.setItem('visitedRandomUsernames', JSON.stringify(visitedRandomUsernames));
-
-                            randomUsernames.forEach(username => {
-                                window.open(`https://www.instagram.com/${username}`, '_blank');
-                            })
-                        }}>I feel lucky</Button>
-                    </Space>
 
                     <div style={{fontSize: "12px"}}>
                         <Divider orientation="left" plain>
