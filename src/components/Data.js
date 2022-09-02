@@ -82,8 +82,8 @@ const Data = () => {
     }, [typeOfDataThatAsk]);
 
     const homeTitleWordingMap = {
-        "unfollowers": "unfollow",
-        "followbacks": "follow back",
+        "unfollowers": "unfollow you",
+        "followbacks": "follow you back",
         "mutual": "mutual with you",
     }
 
@@ -92,7 +92,7 @@ const Data = () => {
             <div>
                 {homeTitleWordingMap[typeOfDataThatAsk] ?
                     <div>
-                        See all {profiles.length} profiles that {homeTitleWordingMap[typeOfDataThatAsk]} you!
+                        See all {profiles.length} profiles that {homeTitleWordingMap[typeOfDataThatAsk]}!
                     </div> : <div>See all profiles that stored into the app.</div>
                 }
             </div>
