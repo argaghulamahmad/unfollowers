@@ -1,6 +1,7 @@
 import {InboxOutlined} from '@ant-design/icons';
 import {Upload, notification, Button, Divider, Space, List, Card, Collapse} from "antd";
 import {acceptedUploadedFilenames, followersJsonFileName, followingJsonFileName} from "../consts";
+import {useState} from "react";
 
 const {Dragger} = Upload;
 const {Panel} = Collapse;
@@ -12,8 +13,8 @@ class Profile {
     }
 }
 
-const Uploader = () => (
-    <div>
+const Uploader = () => {
+    return (<div>
         <div>
             {
                 localStorage.getItem('lastUpdateAt') ? (
@@ -149,6 +150,13 @@ const Uploader = () => (
                                     localStorage.setItem('mutualProfiles', JSON.stringify(mutualProfiles));
 
                                     localStorage.setItem('lastUpdateAt', JSON.stringify((new Date()).getTime()))
+
+                                    setInterval(() => {
+                                        window.location.href = '../';
+                                    }, 3000);
+                                    notification.info({
+                                        message: 'Redirect to home page in 3 seconds',
+                                    })
                                 }
                                 reader.onerror = () => {
                                     notification.error({
@@ -190,7 +198,7 @@ const Uploader = () => (
                 </Collapse>
             </Space>
         </div>
-    </div>
-);
+    </div>)
+};
 
 export default Uploader;
