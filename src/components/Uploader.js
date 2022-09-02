@@ -1,5 +1,5 @@
 import {InboxOutlined} from '@ant-design/icons';
-import {Upload, notification, Button, Divider, Space, List, Card, Collapse} from "antd";
+import {Upload, notification, Button, Divider, Space, List, Card, Collapse, Empty} from "antd";
 import {acceptedUploadedFilenames, followersJsonFileName, followingJsonFileName} from "../consts";
 import {useState} from "react";
 
@@ -185,13 +185,17 @@ const Uploader = () => {
                     <Panel header="Local storage keys" key="1">
                         <List>
                             {
-                                Object.entries(localStorage).map(([key]) => {
+                                Object.entries(localStorage).length > 0 ? Object.entries(localStorage).map(([key]) => {
                                     return (
                                         <List.Item>
                                             {key}
                                         </List.Item>
                                     )
-                                })
+                                }) : <Empty description={
+                                    <span>
+                                        There is no local storage keys stored
+                                    </span>}>
+                                </Empty>
                             }
                         </List>
                     </Panel>
