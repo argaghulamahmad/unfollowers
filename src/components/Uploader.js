@@ -37,7 +37,7 @@ const Uploader = () => (
 
                 <Button type="secondary" style={{width: '100%', whiteSpace: "normal", height: 'auto'}} onClick={() => {
                     window.open('https://mail.google.com/mail/u/0/#inbox');
-                }}>Download backup data from email that instagram sent</Button>
+                }}>Download backup data from email that instagram sent to your instagram account's email</Button>
 
                 <Dragger {...{
                     name: 'file',
