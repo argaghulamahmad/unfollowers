@@ -1,9 +1,10 @@
 import './App.css';
 
-import Data from "./components/Data";
-import Uploader from './components/Uploader';
 import {BrowserRouter as Router, Link, Route, Switch} from "react-router-dom";
 import {Divider, Menu} from "antd";
+import Data from "./components/Data";
+import Uploader from './components/Uploader';
+import Config from "./components/Config";
 
 function App() {
     return (
@@ -20,6 +21,9 @@ function App() {
                                 <Menu.Item key="uploadFile">
                                     <Link to="/upload">Upload</Link>
                                 </Menu.Item>
+                                <Menu.Item key="config">
+                                    <Link to="/config">Config</Link>
+                                </Menu.Item>
                             </Menu>
                         </Divider>
 
@@ -29,6 +33,9 @@ function App() {
                             </Route>
                             <Route exact path="/upload">
                                 <Uploader/>
+                            </Route>
+                            <Route exact path="/config">
+                                <Config/>
                             </Route>
                         </Switch>
                     </div>
