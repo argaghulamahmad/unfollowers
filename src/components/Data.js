@@ -80,25 +80,27 @@ const Data = () => {
 
     return (
         profiles && profiles.length > 0 ? <div>
+            <Divider orientation="left">Stats</Divider>
+            <Row gutter={16}>
+                <Col span={8}>
+                    <Card title="Unfollowers" bordered={false}>
+                        {JSON.parse(localStorage.getItem('unfollowerProfiles')).length} profiles
+                    </Card>
+                </Col>
+                <Col span={8}>
+                    <Card title="Mutuals" bordered={false}>
+                        {JSON.parse(localStorage.getItem('mutualProfiles')).length} profiles
+                    </Card>
+                </Col>
+                <Col span={8}>
+                    <Card title="Followbacks" bordered={false}>
+                        {JSON.parse(localStorage.getItem('unfollowerProfiles')).length} profiles
+                    </Card>
+                </Col>
+            </Row>
+
             <Space size="middle" direction="vertical">
                 <Divider orientation="left">Profiles</Divider>
-                <Row gutter={16}>
-                    <Col span={8}>
-                        <Card title="Unfollowers" bordered={false}>
-                            {JSON.parse(localStorage.getItem('unfollowerProfiles')).length} profiles
-                        </Card>
-                    </Col>
-                    <Col span={8}>
-                        <Card title="Mutuals" bordered={false}>
-                            {JSON.parse(localStorage.getItem('mutualProfiles')).length} profiles
-                        </Card>
-                    </Col>
-                    <Col span={8}>
-                        <Card title="Followbacks" bordered={false}>
-                            {JSON.parse(localStorage.getItem('unfollowerProfiles')).length} profiles
-                        </Card>
-                    </Col>
-                </Row>
 
                 <Select
                     showSearch
@@ -163,7 +165,8 @@ const Data = () => {
                           renderItem={profile => (
                               <List.Item>
                                   <List.Item.Meta
-                                      title={<a href={`https://instagram.com/${profile.username}`} rel="noreferrer nofollow"
+                                      title={<a href={`https://instagram.com/${profile.username}`}
+                                                rel="noreferrer nofollow"
                                                 target="_blank">{profile.username}</a>}
                                       description={epochToDateTime(profile.connectedAt)}
                                   />
