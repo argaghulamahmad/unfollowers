@@ -108,7 +108,7 @@ const Data = () => {
                     <Button type="primary" onClick={() => {
                         let randomUsernames = [];
 
-                        let visitedRandomUsernames = localStorage.getItem('randomUsernames') || [];
+                        let visitedRandomUsernames = localStorage.getItem('visitedRandomUsernames') || [];
                         let unvisitedRandomProfiles = profiles.filter(profile => !visitedRandomUsernames.includes(profile.username));
 
                         for (let i = 0; i < 5; i++) {
@@ -119,7 +119,7 @@ const Data = () => {
                         randomUsernames = [...new Set(randomUsernames)];
 
                         visitedRandomUsernames = visitedRandomUsernames.concat(randomUsernames);
-                        localStorage.setItem('randomUsernames', JSON.stringify(visitedRandomUsernames));
+                        localStorage.setItem('visitedRandomUsernames', JSON.stringify(visitedRandomUsernames));
 
                         randomUsernames.forEach(username => {
                             window.open(`https://www.instagram.com/${username}`, '_blank');
