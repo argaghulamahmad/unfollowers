@@ -29,7 +29,7 @@ div.ant-space.ant-space-horizontal.ant-space-align-center {
   color: rgba(0, 0, 0, .54);
 }
 
-@media only screen and (min-width: 768px) {
+@media only screen and (min-width: 992px) {
   .App {
     max-width: 40vw;
   }
