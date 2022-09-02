@@ -179,6 +179,9 @@ const Data = () => {
                             <Text type="secondary" level={5}> Last updated at {lastUpdateAt}.</Text>
                     }
                     <List style={{padding: "0 5% 0 5%"}} dataSource={profiles}
+                          pagination={{
+                              pageSize: 10,
+                          }}
                           renderItem={profile => (
                               <List.Item>
                                   <List.Item.Meta
@@ -190,7 +193,6 @@ const Data = () => {
                               </List.Item>
                           )}/>
                 </Card>
-
             </Space>
             <BackTop/>
         </div> : <Uploader/>
