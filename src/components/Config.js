@@ -41,10 +41,10 @@ const Config = () => {
                 <Space direction="vertical" size="small" style={{display: 'flex'}}>
                     <Button type="danger" style={{width: '100%'}} onClick={
                         () => {
-                            localStorage.removeItem("visitedRandomProfiles");
+                            localStorage.removeItem("visitedRandomUsernames");
                             notification.success({
                                 message: 'Success',
-                                description: 'Visited Random Profiles data updated!',
+                                description: 'Visited Random Profiles data has been reset!',
                             })
                         }
                     }>
