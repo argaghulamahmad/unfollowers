@@ -153,9 +153,9 @@ const Uploader = () => {
 
                                     setInterval(() => {
                                         window.location.href = '../';
-                                    }, 3000);
+                                    }, 1000);
                                     notification.info({
-                                        message: 'Redirect to home page in 3 seconds',
+                                        message: 'Redirect to home page in 1 seconds',
                                     })
                                 }
                                 reader.onerror = () => {
