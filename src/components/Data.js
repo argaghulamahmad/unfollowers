@@ -105,8 +105,7 @@ const Data = () => {
             </Space>
 
             <Divider orientation="left">Profiles</Divider>
-            <Space size="middle" direction="vertical">
-
+            <Space direction="vertical" size="middle" style={{display: 'flex'}}>
                 <Button type="primary"
                         style={{width: '100%'}}
                         onClick={() => {
