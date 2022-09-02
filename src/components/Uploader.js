@@ -35,7 +35,7 @@ const Uploader = () => (
                     window.open('https://www.instagram.com/download/request/');
                 }}>Ask for backup data here</Button>
 
-                <Button type="secondary" style={{width: '100%'}} onClick={() => {
+                <Button type="secondary" style={{width: '100%', whiteSpace: "normal", height: 'auto'}} onClick={() => {
                     window.open('https://mail.google.com/mail/u/0/#inbox');
                 }}>Download backup data from email that instagram sent</Button>
 
