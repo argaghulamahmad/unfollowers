@@ -111,7 +111,8 @@ const Data = () => {
                         let visitedRandomUsernames = localStorage.getItem('visitedRandomUsernames') || [];
                         let unvisitedRandomProfiles = profiles.filter(profile => !visitedRandomUsernames.includes(profile.username));
 
-                        for (let i = 0; i < 5; i++) {
+                        let feelLuckyGeneratorCounts = JSON.parse(localStorage.getItem('config')).feelLuckyGeneratorCounts || 5;
+                        for (let i = 0; i < feelLuckyGeneratorCounts; i++) {
                             let randomProfile = unvisitedRandomProfiles[Math.floor(Math.random() * unvisitedRandomProfiles.length)];
                             let {username} = randomProfile;
                             randomUsernames.push(username);

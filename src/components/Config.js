@@ -8,7 +8,7 @@ const Config = () => {
             <Form
                 name="validate_other"
                 initialValues={{
-                    'feelLuckyGeneratorNumbers': 7,
+                    'feelLuckyGeneratorCounts': localStorage.getItem('config') ? JSON.parse(localStorage.getItem('config')).feelLuckyGeneratorCounts : 5,
                 }}
                 onFinish={(configValues   ) => {
                     localStorage.setItem('config', JSON.stringify(configValues));
@@ -18,8 +18,8 @@ const Config = () => {
                     });}
                 }
             >
-                <Form.Item label="Feel Lucky Generator">
-                    <Form.Item name="feelLuckyGeneratorNumbers" noStyle>
+                <Form.Item label="Feel Lucky Generator Counts">
+                    <Form.Item name="feelLuckyGeneratorCounts" noStyle>
                         <InputNumber min={1} max={20}/>
                     </Form.Item>
                     <span className="ant-form-text"> profiles</span>
