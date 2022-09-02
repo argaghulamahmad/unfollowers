@@ -117,7 +117,7 @@ const Data = () => {
                     </Col>
                 </Row>
                 <Card hoverable={true} style={{width: '100%'}}>
-                    {getDifferenceBetweenFollowerAndFollowing()} profiles in follower that not in following
+                    {getDifferenceBetweenFollowerAndFollowing()} profiles in following that not in follower
                 </Card>
             </Space>
 
