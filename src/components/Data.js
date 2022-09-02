@@ -90,7 +90,11 @@ const Data = () => {
     return (
         profiles && profiles.length > 0 ? <div>
             <div>
-                See all {profiles.length} profiles that {homeTitleWordingMap[typeOfDataThatAsk]} you!
+                {homeTitleWordingMap[typeOfDataThatAsk] ?
+                    <div>
+                        See all {profiles.length} profiles that {homeTitleWordingMap[typeOfDataThatAsk]} you!
+                    </div> : <div>See all profiles that stored into the app.</div>
+                }
             </div>
 
             <Divider orientation="left">Stats</Divider>
