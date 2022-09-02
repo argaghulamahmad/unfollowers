@@ -100,6 +100,18 @@ const Data = () => {
             <Divider orientation="left">Stats</Divider>
             <Space direction="vertical" size="middle" style={{display: 'flex'}}>
                 <Row gutter={16}>
+                    <Col span={12}>
+                        <Card hoverable title="Follower" bordered={true}>
+                            {JSON.parse(localStorage.getItem('followerProfiles')).length} profiles
+                        </Card>
+                    </Col>
+                    <Col span={12}>
+                        <Card hoverable title="Following" bordered={true}>
+                            {JSON.parse(localStorage.getItem('followingProfiles')).length} profiles
+                        </Card>
+                    </Col>
+                </Row>
+                <Row gutter={16}>
                     <Col span={8}>
                         <Card hoverable title="Unfollowers" bordered={true}>
                             {JSON.parse(localStorage.getItem('unfollowerProfiles')).length} profiles
@@ -117,7 +129,7 @@ const Data = () => {
                     </Col>
                 </Row>
                 <Card hoverable={true} style={{width: '100%'}}>
-                    {getDifferenceBetweenFollowerAndFollowing()} profiles in following that not in follower
+                    {getDifferenceBetweenFollowerAndFollowing()} profiles in follower that not in following
                 </Card>
             </Space>
 
