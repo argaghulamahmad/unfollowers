@@ -1,8 +1,9 @@
 import {InboxOutlined} from '@ant-design/icons';
-import {Upload, notification, Button, Divider, Space} from "antd";
+import {Upload, notification, Button, Divider, Space, List, Card, Collapse} from "antd";
 import {acceptedUploadedFilenames, followersJsonFileName, followingJsonFileName} from "../consts";
 
 const {Dragger} = Upload;
+const {Panel} = Collapse;
 
 class Profile {
     constructor(username, connectedAt) {
@@ -25,12 +26,6 @@ const Uploader = () => (
                     </div>
                 )
             }
-        </div>
-        <div>
-            <Divider orientation="left">Current Data</Divider>
-            <Space direction="vertical" size="middle" style={{display: 'flex'}}>
-                //todo show all local storage items
-            </Space>
         </div>
         <div>
             <Divider orientation="left">Upload Data</Divider>
@@ -173,6 +168,26 @@ const Uploader = () => (
                     </p>
                     <p className="ant-upload-text">Drop followers and following json file here.</p>
                 </Dragger>
+            </Space>
+        </div>
+        <div>
+            <Divider orientation="left">Current Data</Divider>
+            <Space direction="vertical" size="middle" style={{display: 'flex'}}>
+                <Collapse defaultActiveKey={['1']}>
+                    <Panel header="Local storage keys" key="1">
+                        <List>
+                            {
+                                Object.entries(localStorage).map(([key]) => {
+                                    return (
+                                        <List.Item>
+                                            {key}
+                                        </List.Item>
+                                    )
+                                })
+                            }
+                        </List>
+                    </Panel>
+                </Collapse>
             </Space>
         </div>
     </div>
