@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {BackTop, Button, Card, Divider, List, Select, Space} from "antd";
+import {BackTop, Button, Card, Col, Divider, List, Row, Select, Space} from "antd";
 import Text from "antd/es/typography/Text";
 import Uploader from "./Uploader";
 import {typeOfDataThatAskSelectMap} from "../consts";
@@ -80,7 +80,26 @@ const Data = () => {
 
     return (
         profiles && profiles.length > 0 ? <div>
-            <Space size={8} direction="horizontal" style={{width: '100%', justifyContent: 'center'}}>
+            <Space size="middle" direction="vertical">
+                <Divider orientation="left">Profiles</Divider>
+                <Row gutter={16}>
+                    <Col span={8}>
+                        <Card title="Unfollowers" bordered={false}>
+                            {JSON.parse(localStorage.getItem('unfollowerProfiles')).length} profiles
+                        </Card>
+                    </Col>
+                    <Col span={8}>
+                        <Card title="Mutuals" bordered={false}>
+                            {JSON.parse(localStorage.getItem('mutualProfiles')).length} profiles
+                        </Card>
+                    </Col>
+                    <Col span={8}>
+                        <Card title="Followbacks" bordered={false}>
+                            {JSON.parse(localStorage.getItem('unfollowerProfiles')).length} profiles
+                        </Card>
+                    </Col>
+                </Row>
+
                 <Select
                     showSearch
                     placeholder="Find"
@@ -96,63 +115,63 @@ const Data = () => {
                     <Option value="mutual">Mutuals</Option>
                     <Option value="allProfiles">All Profiles</Option>
                 </Select>
+
+                <Card>
+                    <Text>
+                        Number of diff between follower and following: {getDifferenceBetweenFollowerAndFollowing()}
+                    </Text>
+
+                    <Space size={8} direction="horizontal"
+                           style={{width: '100%', justifyContent: 'center', margin: "20px 0"}}>
+                        <Button type="primary" onClick={() => {
+                            let randomUsernames = [];
+
+                            let visitedRandomUsernames = localStorage.getItem('visitedRandomUsernames') || [];
+                            let unvisitedRandomProfiles = profiles.filter(profile => !visitedRandomUsernames.includes(profile.username));
+
+                            let feelLuckyGeneratorCounts = JSON.parse(localStorage.getItem('config')).feelLuckyGeneratorCounts || 5;
+                            for (let i = 0; i < feelLuckyGeneratorCounts; i++) {
+                                let randomProfile = unvisitedRandomProfiles[Math.floor(Math.random() * unvisitedRandomProfiles.length)];
+                                let {username} = randomProfile;
+                                randomUsernames.push(username);
+                            }
+                            randomUsernames = [...new Set(randomUsernames)];
+
+                            visitedRandomUsernames = visitedRandomUsernames.concat(randomUsernames);
+                            localStorage.setItem('visitedRandomUsernames', JSON.stringify(visitedRandomUsernames));
+
+                            randomUsernames.forEach(username => {
+                                window.open(`https://www.instagram.com/${username}`, '_blank');
+                            })
+                        }}>I feel lucky</Button>
+                    </Space>
+
+                    <div style={{fontSize: "12px"}}>
+                        <Divider orientation="left" plain>
+                            {typeOfDataThatAskSelectMap[typeOfDataThatAsk]}
+                        </Divider>
+                    </div>
+                    <Text type="secondary" style={{paddingLeft: "5%"}} level={5}>Number
+                        of {typeOfDataThatAskSelectMap[typeOfDataThatAsk]} is {profiles.length}. {
+                            typeOfDataThatAsk === "unfollowers" ? `${getPercentOfProfilesOfMutual()} unfolllow of mutual.` : ""
+                        }</Text>
+                    {
+                        lastUpdateAt !== "" ? null :
+                            <Text type="secondary" level={5}> Last updated at {lastUpdateAt}.</Text>
+                    }
+                    <List style={{padding: "0 5% 0 5%"}} dataSource={profiles}
+                          renderItem={profile => (
+                              <List.Item>
+                                  <List.Item.Meta
+                                      title={<a href={`https://instagram.com/${profile.username}`} rel="noreferrer nofollow"
+                                                target="_blank">{profile.username}</a>}
+                                      description={epochToDateTime(profile.connectedAt)}
+                                  />
+                              </List.Item>
+                          )}/>
+                </Card>
+
             </Space>
-
-            <Card>
-                <Text>
-                    Number of diff between follower and following: {getDifferenceBetweenFollowerAndFollowing()}
-                </Text>
-
-                <Space size={8} direction="horizontal"
-                       style={{width: '100%', justifyContent: 'center', margin: "20px 0"}}>
-                    <Button type="primary" onClick={() => {
-                        let randomUsernames = [];
-
-                        let visitedRandomUsernames = localStorage.getItem('visitedRandomUsernames') || [];
-                        let unvisitedRandomProfiles = profiles.filter(profile => !visitedRandomUsernames.includes(profile.username));
-
-                        let feelLuckyGeneratorCounts = JSON.parse(localStorage.getItem('config')).feelLuckyGeneratorCounts || 5;
-                        for (let i = 0; i < feelLuckyGeneratorCounts; i++) {
-                            let randomProfile = unvisitedRandomProfiles[Math.floor(Math.random() * unvisitedRandomProfiles.length)];
-                            let {username} = randomProfile;
-                            randomUsernames.push(username);
-                        }
-                        randomUsernames = [...new Set(randomUsernames)];
-
-                        visitedRandomUsernames = visitedRandomUsernames.concat(randomUsernames);
-                        localStorage.setItem('visitedRandomUsernames', JSON.stringify(visitedRandomUsernames));
-
-                        randomUsernames.forEach(username => {
-                            window.open(`https://www.instagram.com/${username}`, '_blank');
-                        })
-                    }}>I feel lucky</Button>
-                </Space>
-
-                <div style={{fontSize: "12px"}}>
-                    <Divider orientation="left" plain>
-                        {typeOfDataThatAskSelectMap[typeOfDataThatAsk]}
-                    </Divider>
-                </div>
-                <Text type="secondary" style={{paddingLeft: "5%"}} level={5}>Number
-                    of {typeOfDataThatAskSelectMap[typeOfDataThatAsk]} is {profiles.length}. {
-                        typeOfDataThatAsk === "unfollowers" ? `${getPercentOfProfilesOfMutual()} unfolllow of mutual.` : ""
-                    }</Text>
-                {
-                    lastUpdateAt !== "" ? null :
-                        <Text type="secondary" level={5}> Last updated at {lastUpdateAt}.</Text>
-                }
-                <List style={{padding: "0 5% 0 5%"}} dataSource={profiles}
-                      renderItem={profile => (
-                          <List.Item>
-                              <List.Item.Meta
-                                  title={<a href={`https://instagram.com/${profile.username}`} rel="noreferrer nofollow"
-                                            target="_blank">{profile.username}</a>}
-                                  description={epochToDateTime(profile.connectedAt)}
-                              />
-                          </List.Item>
-                      )}/>
-            </Card>
-
             <BackTop/>
         </div> : <Uploader/>
     );
