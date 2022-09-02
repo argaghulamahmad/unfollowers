@@ -111,6 +111,9 @@ const Data = () => {
                         </Card>
                     </Col>
                 </Row>
+                <Card hoverable={true} style={{width: '100%'}}>
+                    {getDifferenceBetweenFollowerAndFollowing()} profiles in follower that not in following
+                </Card>
                 <Row gutter={16}>
                     <Col span={8}>
                         <Card hoverable title="Unfollowers" bordered={true}>
@@ -128,9 +131,6 @@ const Data = () => {
                         </Card>
                     </Col>
                 </Row>
-                <Card hoverable={true} style={{width: '100%'}}>
-                    {getDifferenceBetweenFollowerAndFollowing()} profiles in follower that not in following
-                </Card>
             </Space>
 
             <Divider orientation="left">Profiles</Divider>
