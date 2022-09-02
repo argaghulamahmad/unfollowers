@@ -108,7 +108,7 @@ const Data = () => {
                     <Button type="primary" onClick={() => {
                         let randomUsernames = [];
 
-                        let visitedRandomUsernames = localStorage.getItem('randomUsernames', JSON.stringify(randomUsernames))  || [];
+                        let visitedRandomUsernames = localStorage.getItem('randomUsernames') || [];
                         let unvisitedRandomProfiles = profiles.filter(profile => !visitedRandomUsernames.includes(profile.username));
 
                         for (let i = 0; i < 5; i++) {
