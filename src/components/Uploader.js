@@ -1,7 +1,6 @@
 import {InboxOutlined} from '@ant-design/icons';
-import {Upload, notification, Button, Divider, Space, List, Card, Collapse, Empty} from "antd";
+import {Upload, notification, Button, Divider, Space, List, Collapse, Empty} from "antd";
 import {acceptedUploadedFilenames, followersJsonFileName, followingJsonFileName} from "../consts";
-import {useState} from "react";
 
 const {Dragger} = Upload;
 const {Panel} = Collapse;
