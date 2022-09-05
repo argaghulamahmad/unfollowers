@@ -136,14 +136,14 @@ const Uploader = () => {
                                         return new Profile(username, profile.connectedAt)
                                     })
                                     localStorage.setItem('followbackProfiles', JSON.stringify(followbackProfiles));
-                                    localStorage.setItem('followbackProfilesTotal', followbackProfiles.length);
+                                    localStorage.setItem('followbacksProfilesTotal', followbackProfiles.length);
 
                                     const unfollowbackProfiles = unfollowerUsernames.map(username => {
                                         const profile = allProfilesMap.get(username);
                                         return new Profile(username, profile.connectedAt)
                                     })
                                     localStorage.setItem('unfollowerProfiles', JSON.stringify(unfollowbackProfiles));
-                                    localStorage.setItem('unfollowerProfilesTotal', unfollowbackProfiles.length);
+                                    localStorage.setItem('unfollowersProfilesTotal', unfollowbackProfiles.length);
 
                                     const mutualProfiles = mutualUsernames.map(username => {
                                         const profile = allProfilesMap.get(username);
