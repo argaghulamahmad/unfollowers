@@ -20,7 +20,6 @@ const Data = () => {
         setTypeOfDataThatAsk(value)
 
         let localStorageKey = `${value.replace("Profiles", "")}ProfilesTotal`;
-
         let description = "You have selected " + typeOfDataThatAskSelectMap[value] + " to be shown. There are " + localStorage.getItem(localStorageKey) + " " + typeOfDataThatAskSelectMap[value] + " in total.";
 
         notification.success({
