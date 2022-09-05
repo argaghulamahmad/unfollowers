@@ -18,9 +18,13 @@ const Data = () => {
     const handleTypeOfDataThatAskChangeEvent = (value) => {
         localStorage.setItem("typeOfDataThatAsked", value);
         setTypeOfDataThatAsk(value)
+
+        let localStorageKey = `${value}ProfilesTotal`;
+        let description = "You have selected " + typeOfDataThatAskSelectMap[value] + " to be shown. There are " + localStorage.getItem(localStorageKey) + " " + typeOfDataThatAskSelectMap[value] + " in total.";
+
         notification.success({
             message: 'Success',
-            description: `${profiles.length} profiles loaded!`,
+            description: description,
         })
     }
 

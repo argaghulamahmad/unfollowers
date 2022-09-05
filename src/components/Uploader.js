@@ -117,6 +117,7 @@ const Uploader = () => {
                                     });
 
                                     localStorage.setItem('allProfiles', JSON.stringify(allProfilesArray));
+                                    localStorage.setItem('allProfilesTotal', allProfilesArray.length);
 
                                     const followerUsernames = JSON.parse(localStorage.getItem('followerUsernames')) || [];
                                     const followingUsernames = JSON.parse(localStorage.getItem('followingUsernames')) || [];
@@ -135,18 +136,21 @@ const Uploader = () => {
                                         return new Profile(username, profile.connectedAt)
                                     })
                                     localStorage.setItem('followbackProfiles', JSON.stringify(followbackProfiles));
+                                    localStorage.setItem('followbackProfilesTotal', followbackProfiles.length);
 
                                     const unfollowbackProfiles = unfollowerUsernames.map(username => {
                                         const profile = allProfilesMap.get(username);
                                         return new Profile(username, profile.connectedAt)
                                     })
                                     localStorage.setItem('unfollowerProfiles', JSON.stringify(unfollowbackProfiles));
+                                    localStorage.setItem('unfollowerProfilesTotal', unfollowbackProfiles.length);
 
                                     const mutualProfiles = mutualUsernames.map(username => {
                                         const profile = allProfilesMap.get(username);
                                         return new Profile(username, profile.connectedAt)
                                     })
                                     localStorage.setItem('mutualProfiles', JSON.stringify(mutualProfiles));
+                                    localStorage.setItem('mutualProfilesTotal', mutualProfiles.length);
 
                                     localStorage.setItem('lastUpdateAt', JSON.stringify((new Date()).getTime()))
 
