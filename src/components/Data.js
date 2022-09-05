@@ -35,8 +35,16 @@ const Data = () => {
         let followersProfiles = JSON.parse(localStorage.getItem('followerUsernames'));
         let followingProfiles = JSON.parse(localStorage.getItem('followingUsernames'));
 
-        let profilesDifference = followersProfiles.filter(username => !followingProfiles.includes(username));
-        return profilesDifference.length;
+        let isFollowersBiggerThanFollowing = followersProfiles.length - followingProfiles.length;
+        let discrepancies = isFollowersBiggerThanFollowing > 0 ? followersProfiles.filter(username => !followingProfiles.includes(username)) : followingProfiles.filter(username => !followersProfiles.includes(username));
+        let wording = (isFollowersBiggerThanFollowing > 0 ? "You have more followers than followings." : "You have more followings than followers.") + " A total is " + discrepancies.length + (discrepancies > 1 ? " profile." : " profiles.");
+
+        return {
+            discrepanciesLength: discrepancies.length,
+            isFollowersBiggerThanFollowing: isFollowersBiggerThanFollowing > 0,
+            profileDiscrepancies: discrepancies,
+            wording: wording
+        };
     }
 
     const epochToDateTime = (epoch) => {
@@ -113,7 +121,7 @@ const Data = () => {
                     </Col>
                 </Row>
                 <Card hoverable={true} style={{width: '100%'}}>
-                    {getDifferenceBetweenFollowerAndFollowing()} profiles in follower that not in following
+                    {getDifferenceBetweenFollowerAndFollowing().wording}
                 </Card>
                 <Row gutter={16}>
                     <Col span={8}>

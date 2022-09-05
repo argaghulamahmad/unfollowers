@@ -180,7 +180,7 @@ const Uploader = () => {
         <div>
             <Divider orientation="left">Current Data</Divider>
             <Space direction="vertical" size="middle" style={{display: 'flex'}}>
-                <Collapse defaultActiveKey={['1']}>
+                <Collapse>
                     <Panel header="Local storage keys" key="1">
                         <List>
                             {
