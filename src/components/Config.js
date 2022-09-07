@@ -9,7 +9,7 @@ const Config = () => {
                 Customize your settings here!
             </div>
             <div>
-                <Divider orientation="left">Reset Data</Divider>
+                <Divider orientation="left">Config Setup</Divider>
                 <Space direction="vertical" size="middle" style={{display: 'flex'}}>
                     <Form
                         name="configForm"
