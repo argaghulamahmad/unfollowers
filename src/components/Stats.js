@@ -1,4 +1,5 @@
 import {Card, Col, Divider, Row, Space, Table, Tabs} from "antd";
+import Uploader from "./Uploader";
 
 const getDifferenceBetweenFollowerAndFollowing = () => {
     let followersProfiles = JSON.parse(localStorage.getItem('followerUsernames'));
@@ -31,7 +32,7 @@ const tableCols = [
 
 const Stats = () => {
     return (
-        <div>
+        JSON.parse(localStorage.getItem('allProfiles')) ? <div>
             <Divider orientation="left">Stats</Divider>
             <Space direction="vertical" size="middle" style={{display: 'flex'}}>
                 <Row gutter={16}>
@@ -61,7 +62,7 @@ const Stats = () => {
                     <Table dataSource={JSON.parse(localStorage.getItem("followerProfiles"))} columns={tableCols}/>
                 </Tabs.TabPane>
             </Tabs>
-        </div>
+        </div> : <Uploader/>
     )
 }
 

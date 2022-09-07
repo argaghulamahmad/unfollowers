@@ -89,22 +89,22 @@ const Insight = () => {
             setProfiles(unfollowerProfiles)
         };
 
-        renderUnfollowerDataAtInit();
+        JSON.parse(localStorage.getItem('allProfiles')) && renderUnfollowerDataAtInit();
     }, []);
 
     useEffect(() => {
-        setProfilesByTypeOfDataThatAsk();
+        JSON.parse(localStorage.getItem('allProfiles')) && setProfilesByTypeOfDataThatAsk();
     }, [typeOfDataThatAsk]);
 
     useEffect(() => {
-        setProfilesByTypeOfDataThatAsk();
+        JSON.parse(localStorage.getItem('allProfiles')) && setProfilesByTypeOfDataThatAsk();
     }, [sortConfig]);
 
     const homeTitleWordingMap = {
         "unfollowers": "unfollow you", "followbacks": "follow you back", "mutual": "mutual with you",
     }
 
-    return (profiles && profiles.length > 0 ? <div>
+    return (JSON.parse(localStorage.getItem('allProfiles')) ? <div>
         <div>
             {homeTitleWordingMap[typeOfDataThatAsk] ? <div>
                 See all {profiles.length} profiles that {homeTitleWordingMap[typeOfDataThatAsk]}!
