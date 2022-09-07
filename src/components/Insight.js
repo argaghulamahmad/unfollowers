@@ -94,11 +94,11 @@ const Insight = () => {
 
     useEffect(() => {
         setProfilesByTypeOfDataThatAsk();
-    }, [typeOfDataThatAsk]);
+    }, [typeOfDataThatAsk]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         setProfilesByTypeOfDataThatAsk();
-    }, [sortConfig]);
+    }, [sortConfig]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const homeTitleWordingMap = {
         "unfollowers": "unfollow you", "followbacks": "follow you back", "mutual": "mutual with you",
