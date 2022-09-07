@@ -1,7 +1,8 @@
 import {useEffect, useState} from "react";
-import {BackTop, Button, Card, Col, Divider, List, notification, Row, Space} from "antd";
+import {BackTop, Button, Card, Col, Divider, List, notification, Row, Select, Space} from "antd";
 import Uploader from "./Uploader";
 import {typeOfDataThatAskSelectMap} from "../consts";
+import {Option} from "antd/es/mentions";
 
 const Data = () => {
     const defaultTypeOfDataThatAsked = localStorage.getItem("typeOfDataThatAsked") || "unfollowers";
@@ -9,6 +10,33 @@ const Data = () => {
     const [typeOfDataThatAsk, setTypeOfDataThatAsk] = useState(defaultTypeOfDataThatAsked);
 
     const [profiles, setProfiles] = useState([]);
+
+    const [sortConfig, setSortConfig] = useState({
+        key: 'connectedAt',
+        direction: 'desc',
+    });
+
+    const sortProfiles = (profiles, sortConfig) => {
+        const {key, direction} = sortConfig;
+
+        if (key === 'connectedAt') {
+            return [...profiles].sort((a, b) => {
+                if (direction === 'asc') {
+                    return new Date(a.connectedAt) - new Date(b.connectedAt);
+                } else if (direction === 'desc') {
+                    return new Date(b.connectedAt) - new Date(a.connectedAt);
+                }
+            });
+        } else if (key === 'username') {
+            return [...profiles].sort((a, b) => {
+                if (direction === 'asc') {
+                    return a.username.localeCompare(b.username);
+                } else if (direction === 'desc') {
+                    return b.username.localeCompare(a.username);
+                }
+            });
+        }
+    }
 
     const handleTypeOfDataThatAskChangeEvent = (value) => {
         localStorage.setItem("typeOfDataThatAsked", value);
@@ -28,8 +56,14 @@ const Data = () => {
     }
 
     useEffect(() => {
+        setSortConfig({
+            key: 'connectedAt',
+            direction: 'desc',
+        })
+
         const renderUnfollowerDataAtInit = () => {
             let unfollowerProfiles = JSON.parse(localStorage.getItem('unfollowerProfiles'));
+            unfollowerProfiles = sortProfiles(unfollowerProfiles, sortConfig);
             setProfiles(unfollowerProfiles)
         };
 
@@ -45,16 +79,16 @@ const Data = () => {
 
             switch (typeOfDataThatAsk) {
                 case "unfollowers":
-                    setProfiles(unfollowerProfiles)
+                    setProfiles(sortProfiles(unfollowerProfiles, sortConfig));
                     break;
                 case "followbacks":
-                    setProfiles(followbackProfiles)
+                    setProfiles(sortProfiles(followbackProfiles, sortConfig));
                     break;
                 case "mutual":
-                    setProfiles(mutualProfiles)
+                    setProfiles(sortProfiles(mutualProfiles, sortConfig));
                     break;
                 case "allProfiles":
-                    setProfiles(allProfiles)
+                    setProfiles(sortProfiles(allProfiles, sortConfig));
                     break;
                 default:
                     console.error()
@@ -151,11 +185,33 @@ const Data = () => {
                         })
                     }}>I feel lucky</Button>
 
+
             <Card>
                 <div style={{fontSize: "12px"}}>
                     <Divider orientation="left" plain>
                         {typeOfDataThatAskSelectMap[typeOfDataThatAsk]}
                     </Divider>
+                </div>
+                <Space direction="vertical" size="middle">
+                </Space>
+                <div style={{
+                    textAlign: 'right',
+                }}>
+                    <Space direction="horizontal" size="small">
+                        sort by:
+                        <Select defaultValue="connectedAt" onChange={(value) => {
+
+                        }}>
+                            <Option value="username">Username</Option>
+                            <Option value="connectedAt">Connected At</Option>
+                        </Select>
+                        <Select defaultValue="desc" onChange={(value) => {
+                            console.log(value)
+                        }}>
+                            <Option value="asc">Ascending</Option>
+                            <Option value="desc">Descending</Option>
+                        </Select>
+                    </Space>
                 </div>
                 <List style={{padding: "0 5% 0 5%"}} dataSource={profiles}
                       pagination={{
