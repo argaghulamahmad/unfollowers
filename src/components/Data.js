@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {BackTop, Button, Card, Col, Divider, List, notification, Row, Select, Space} from "antd";
+import {BackTop, Button, Card, Col, Divider, List, notification, Row, Space} from "antd";
 import Uploader from "./Uploader";
 import {typeOfDataThatAskSelectMap} from "../consts";
 
@@ -20,8 +20,7 @@ const Data = () => {
         let description = "You have selected " + typeOfDataThatAskSelectMap[value] + " to be shown. There are " + localStorage.getItem(localStorageKey) + " " + typeOfDataThatAskSelectMap[value] + " in total.";
 
         notification.success({
-            message: 'Success',
-            description: description,
+            message: 'Success', description: description,
         })
     }
 
@@ -69,48 +68,49 @@ const Data = () => {
     }, [typeOfDataThatAsk]);
 
     const homeTitleWordingMap = {
-        "unfollowers": "unfollow you",
-        "followbacks": "follow you back",
-        "mutual": "mutual with you",
+        "unfollowers": "unfollow you", "followbacks": "follow you back", "mutual": "mutual with you",
     }
 
-    return (
-        profiles && profiles.length > 0 ? <div>
+    return (profiles && profiles.length > 0 ? <div>
             <div>
-                {homeTitleWordingMap[typeOfDataThatAsk] ?
-                    <div>
-                        See all {profiles.length} profiles that {homeTitleWordingMap[typeOfDataThatAsk]}!
-                    </div> : <div>See all profiles that stored into the app.</div>
-                }
+                {homeTitleWordingMap[typeOfDataThatAsk] ? <div>
+                    See all {profiles.length} profiles that {homeTitleWordingMap[typeOfDataThatAsk]}!
+                </div> : <div>See all profiles that stored into the app.</div>}
             </div>
 
             <Divider orientation="left">Profiles</Divider>
             <Space direction="vertical" size="middle" style={{display: 'flex'}}>
                 <Row gutter={16}>
                     <Col span={8}>
-                        <Card hoverable title="Unfollowers" bordered={true} onClick={
-                            () => {
-                                handleTypeOfDataThatAskChangeEvent("unfollowers")
-                            }
-                        }>
+                        <Card hoverable title="Unfollowers" bordered={true} onClick={() => {
+                            handleTypeOfDataThatAskChangeEvent("unfollowers")
+                        }}
+                              style={{
+                                  boxShadow: typeOfDataThatAsk === "unfollowers" ? "5px 8px 24px 5px rgba(208, 216, 243, 0.6)" : ""
+                              }}
+                        >
                             {JSON.parse(localStorage.getItem('unfollowerProfiles')).length} profiles
                         </Card>
                     </Col>
                     <Col span={8}>
-                        <Card hoverable title="Mutuals" bordered={true} onClick={
-                            () => {
-                                handleTypeOfDataThatAskChangeEvent("mutual")
-                            }
-                        }>
+                        <Card hoverable title="Mutuals" bordered={true} onClick={() => {
+                            handleTypeOfDataThatAskChangeEvent("mutual")
+                        }}
+                              style={{
+                                  boxShadow: typeOfDataThatAsk === "mutual" ? "5px 8px 24px 5px rgba(208, 216, 243, 0.6)" : ""
+                              }}
+                        >
                             {JSON.parse(localStorage.getItem('mutualProfiles')).length} profiles
                         </Card>
                     </Col>
                     <Col span={8}>
-                        <Card hoverable title="Followbacks" bordered={true} onClick={
-                            () => {
-                                handleTypeOfDataThatAskChangeEvent("followbacks")
-                            }
-                        }>
+                        <Card hoverable title="Followbacks" bordered={true} onClick={() => {
+                            handleTypeOfDataThatAskChangeEvent("followbacks")
+                        }}
+                              style={{
+                                  boxShadow: typeOfDataThatAsk === "followbacks" ? "5px 8px 24px 5px rgba(208, 216, 243, 0.6)" : ""
+                              }}
+                        >
                             {JSON.parse(localStorage.getItem('followbackProfiles')).length} profiles
                         </Card>
                     </Col>
@@ -164,21 +164,18 @@ const Data = () => {
                           pagination={{
                               pageSize: 10,
                           }}
-                          renderItem={profile => (
-                              <List.Item>
+                          renderItem={profile => (<List.Item>
                                   <List.Item.Meta
                                       title={<a href={`https://instagram.com/${profile.username}`}
                                                 rel="noreferrer nofollow"
                                                 target="_blank">{profile.username}</a>}
                                       description={epochToDateTime(profile.connectedAt)}
                                   />
-                              </List.Item>
-                          )}/>
+                              </List.Item>)}/>
                 </Card>
             </Space>
             <BackTop/>
-        </div> : <Uploader/>
-    );
+        </div> : <Uploader/>);
 }
 
 export default Data;
