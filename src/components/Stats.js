@@ -36,17 +36,17 @@ const Stats = () => {
             <Space direction="vertical" size="middle" style={{display: 'flex'}}>
                 <Row gutter={16}>
                     <Col span={12}>
-                        <Card hoverable title="Follower" bordered={true}>
+                        <Card title="Follower" bordered={true}>
                             {JSON.parse(localStorage.getItem('followerProfiles')).length} profiles
                         </Card>
                     </Col>
                     <Col span={12}>
-                        <Card hoverable title="Following" bordered={true}>
+                        <Card title="Following" bordered={true}>
                             {JSON.parse(localStorage.getItem('followingProfiles')).length} profiles
                         </Card>
                     </Col>
                 </Row>
-                <Card hoverable={true} style={{width: '100%'}}>
+                <Card style={{width: '100%'}}>
                     {getDifferenceBetweenFollowerAndFollowing().wording}
                 </Card>
             </Space>
