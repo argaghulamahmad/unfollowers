@@ -1,6 +1,5 @@
 import {useEffect, useState} from "react";
 import {BackTop, Button, Card, Col, Divider, List, notification, Row, Select, Space} from "antd";
-import Text from "antd/es/typography/Text";
 import Uploader from "./Uploader";
 import {typeOfDataThatAskSelectMap} from "../consts";
 
@@ -13,8 +12,6 @@ const Data = () => {
 
     const [profiles, setProfiles] = useState([]);
 
-    const {Option} = Select;
-
     const handleTypeOfDataThatAskChangeEvent = (value) => {
         localStorage.setItem("typeOfDataThatAsked", value);
         setTypeOfDataThatAsk(value)
@@ -26,29 +23,6 @@ const Data = () => {
             message: 'Success',
             description: description,
         })
-    }
-
-    const getPercentOfProfilesOfMutual = () => {
-        let mutual = JSON.parse(localStorage.getItem('mutualUsernames')) || [];
-
-        let percentOfProfilesWithMutual = (profiles.length / mutual.length).toFixed(5);
-        return `${percentOfProfilesWithMutual}%`;
-    }
-
-    const getDifferenceBetweenFollowerAndFollowing = () => {
-        let followersProfiles = JSON.parse(localStorage.getItem('followerUsernames'));
-        let followingProfiles = JSON.parse(localStorage.getItem('followingUsernames'));
-
-        let isFollowersBiggerThanFollowing = followersProfiles.length - followingProfiles.length;
-        let discrepancies = isFollowersBiggerThanFollowing > 0 ? followersProfiles.filter(username => !followingProfiles.includes(username)) : followingProfiles.filter(username => !followersProfiles.includes(username));
-        let wording = (isFollowersBiggerThanFollowing > 0 ? "You have more followers than followings." : "You have more followings than followers.") + " A total is " + discrepancies.length + (discrepancies > 1 ? " profile." : " profiles.");
-
-        return {
-            discrepanciesLength: discrepancies.length,
-            isFollowersBiggerThanFollowing: isFollowersBiggerThanFollowing > 0,
-            profileDiscrepancies: discrepancies,
-            wording: wording
-        };
     }
 
     const epochToDateTime = (epoch) => {
@@ -110,44 +84,38 @@ const Data = () => {
                 }
             </div>
 
-            <Divider orientation="left">Stats</Divider>
+            <Divider orientation="left">Profiles</Divider>
             <Space direction="vertical" size="middle" style={{display: 'flex'}}>
                 <Row gutter={16}>
-                    <Col span={12}>
-                        <Card hoverable title="Follower" bordered={true}>
-                            {JSON.parse(localStorage.getItem('followerProfiles')).length} profiles
-                        </Card>
-                    </Col>
-                    <Col span={12}>
-                        <Card hoverable title="Following" bordered={true}>
-                            {JSON.parse(localStorage.getItem('followingProfiles')).length} profiles
-                        </Card>
-                    </Col>
-                </Row>
-                <Card hoverable={true} style={{width: '100%'}}>
-                    {getDifferenceBetweenFollowerAndFollowing().wording}
-                </Card>
-                <Row gutter={16}>
                     <Col span={8}>
-                        <Card hoverable title="Unfollowers" bordered={true}>
+                        <Card hoverable title="Unfollowers" bordered={true} onClick={
+                            () => {
+                                handleTypeOfDataThatAskChangeEvent("unfollowers")
+                            }
+                        }>
                             {JSON.parse(localStorage.getItem('unfollowerProfiles')).length} profiles
                         </Card>
                     </Col>
                     <Col span={8}>
-                        <Card hoverable title="Mutuals" bordered={true}>
+                        <Card hoverable title="Mutuals" bordered={true} onClick={
+                            () => {
+                                handleTypeOfDataThatAskChangeEvent("mutual")
+                            }
+                        }>
                             {JSON.parse(localStorage.getItem('mutualProfiles')).length} profiles
                         </Card>
                     </Col>
                     <Col span={8}>
-                        <Card hoverable title="Followbacks" bordered={true}>
-                            {JSON.parse(localStorage.getItem('unfollowerProfiles')).length} profiles
+                        <Card hoverable title="Followbacks" bordered={true} onClick={
+                            () => {
+                                handleTypeOfDataThatAskChangeEvent("followbacks")
+                            }
+                        }>
+                            {JSON.parse(localStorage.getItem('followbackProfiles')).length} profiles
                         </Card>
                     </Col>
                 </Row>
-            </Space>
 
-            <Divider orientation="left">Profiles</Divider>
-            <Space direction="vertical" size="middle" style={{display: 'flex'}}>
                 <Button type="primary"
                         style={{width: '100%'}}
                         onClick={() => {
@@ -186,37 +154,12 @@ const Data = () => {
                             })
                         }}>I feel lucky</Button>
 
-                <Select
-                    showSearch
-                    placeholder="Find"
-                    optionFilterProp="children"
-                    defaultValue={typeOfDataThatAsk}
-                    onChange={handleTypeOfDataThatAskChangeEvent}
-                    filterOption={(input, option) =>
-                        option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                    }
-                    style={{width: '100%'}}
-                >
-                    <Option value="unfollowers">Unfollowers</Option>
-                    <Option value="followbacks">Followbacks</Option>
-                    <Option value="mutual">Mutuals</Option>
-                    <Option value="allProfiles">All Profiles</Option>
-                </Select>
-
                 <Card>
                     <div style={{fontSize: "12px"}}>
                         <Divider orientation="left" plain>
                             {typeOfDataThatAskSelectMap[typeOfDataThatAsk]}
                         </Divider>
                     </div>
-                    <Text type="secondary" style={{paddingLeft: "5%"}} level={5}>Number
-                        of {typeOfDataThatAskSelectMap[typeOfDataThatAsk]} is {profiles.length}. {
-                            typeOfDataThatAsk === "unfollowers" ? `${getPercentOfProfilesOfMutual()} unfolllow of mutual.` : ""
-                        }</Text>
-                    {
-                        lastUpdateAt !== "" ? null :
-                            <Text type="secondary" level={5}> Last updated at {lastUpdateAt}.</Text>
-                    }
                     <List style={{padding: "0 5% 0 5%"}} dataSource={profiles}
                           pagination={{
                               pageSize: 10,
