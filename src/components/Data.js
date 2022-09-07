@@ -25,6 +25,8 @@ const Data = () => {
                     return new Date(a.connectedAt) - new Date(b.connectedAt);
                 } else if (order === 'desc') {
                     return new Date(b.connectedAt) - new Date(a.connectedAt);
+                } else {
+                    return 0;
                 }
             });
         } else if (key === 'username') {
@@ -33,6 +35,8 @@ const Data = () => {
                     return a.username.localeCompare(b.username);
                 } else if (order === 'desc') {
                     return b.username.localeCompare(a.username);
+                } else {
+                    return 0;
                 }
             });
         }
