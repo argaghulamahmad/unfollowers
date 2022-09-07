@@ -2,7 +2,7 @@ import './App.css';
 
 import {BrowserRouter as Router, Link, Route, Switch} from "react-router-dom";
 import {Divider, Menu, Space} from "antd";
-import Data from "./components/Data";
+import Insight from "./components/Insight";
 import Uploader from './components/Uploader';
 import Config from "./components/Config";
 import Stats from "./components/Stats";
@@ -26,8 +26,8 @@ function App() {
                                 <Menu.Item key="stats">
                                     <Link to="/stats">Stats</Link>
                                 </Menu.Item>
-                                <Menu.Item key="data">
-                                    <Link to="/">Data</Link>
+                                <Menu.Item key="insight">
+                                    <Link to="/">Insight</Link>
                                 </Menu.Item>
                                 <Menu.Item key="uploadFile">
                                     <Link to="/upload">Upload</Link>
@@ -42,7 +42,7 @@ function App() {
                                     <Stats/>
                                 </Route>
                                 <Route exact path="/">
-                                    <Data/>
+                                    <Insight/>
                                 </Route>
                                 <Route exact path="/upload">
                                     <Uploader/>

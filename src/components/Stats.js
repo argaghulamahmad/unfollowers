@@ -1,11 +1,4 @@
-import {Card, Col, Divider, Row, Space} from "antd";
-
-/*onst getPercentOfProfilesOfMutual = () => {
-    let mutual = JSON.parse(localStorage.getItem('mutualUsernames')) || [];
-
-    let percentOfProfilesWithMutual = (profiles.length / mutual.length).toFixed(5);
-    return `${percentOfProfilesWithMutual}%`;
-}*/
+import {Card, Col, Divider, Row, Space, Table, Tabs} from "antd";
 
 const getDifferenceBetweenFollowerAndFollowing = () => {
     let followersProfiles = JSON.parse(localStorage.getItem('followerUsernames'));
@@ -22,6 +15,19 @@ const getDifferenceBetweenFollowerAndFollowing = () => {
         wording: wording
     };
 }
+
+const tableCols = [
+    {
+        title: 'Username',
+        dataIndex: 'username',
+        key: 'username',
+    },
+    {
+        title: 'Connected At',
+        dataIndex: 'connectedAt',
+        key: 'connectedAt',
+    }
+]
 
 const Stats = () => {
     return (
@@ -44,6 +50,17 @@ const Stats = () => {
                     {getDifferenceBetweenFollowerAndFollowing().wording}
                 </Card>
             </Space>
+
+            <Divider orientation="left">Data</Divider>
+
+            <Tabs defaultActiveKey="1" tabPosition={'right'}>
+                <Tabs.TabPane tab="Following" key="1">
+                    <Table dataSource={JSON.parse(localStorage.getItem("followingProfiles"))} columns={tableCols}/>
+                </Tabs.TabPane>
+                <Tabs.TabPane tab="Follower" key="2">
+                    <Table dataSource={JSON.parse(localStorage.getItem("followerProfiles"))} columns={tableCols}/>
+                </Tabs.TabPane>
+            </Tabs>
         </div>
     )
 }

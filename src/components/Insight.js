@@ -4,7 +4,7 @@ import Uploader from "./Uploader";
 import {typeOfDataThatAskSelectMap} from "../consts";
 import {Option} from "antd/es/mentions";
 
-const Data = () => {
+const Insight = () => {
     const defaultTypeOfDataThatAsked = localStorage.getItem("typeOfDataThatAsked") || "unfollowers";
 
     const [typeOfDataThatAsk, setTypeOfDataThatAsk] = useState(defaultTypeOfDataThatAsked);
@@ -243,4 +243,4 @@ const Data = () => {
     </div> : <Uploader/>);
 }
 
-export default Data;
+export default Insight;
