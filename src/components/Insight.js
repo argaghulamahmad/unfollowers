@@ -90,15 +90,15 @@ const Insight = () => {
         };
 
         renderUnfollowerDataAtInit();
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    }, []);
 
     useEffect(() => {
         setProfilesByTypeOfDataThatAsk();
-    }, [typeOfDataThatAsk]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [typeOfDataThatAsk]);
 
     useEffect(() => {
         setProfilesByTypeOfDataThatAsk();
-    }, [sortConfig]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [sortConfig]);
 
     const homeTitleWordingMap = {
         "unfollowers": "unfollow you", "followbacks": "follow you back", "mutual": "mutual with you",
