@@ -13,25 +13,25 @@ const Data = () => {
 
     const [sortConfig, setSortConfig] = useState({
         key: 'connectedAt',
-        direction: 'desc',
+        order: 'desc',
     });
 
     const sortProfiles = (profiles, sortConfig) => {
-        const {key, direction} = sortConfig;
+        const {key, order} = sortConfig;
 
         if (key === 'connectedAt') {
             return [...profiles].sort((a, b) => {
-                if (direction === 'asc') {
+                if (order === 'asc') {
                     return new Date(a.connectedAt) - new Date(b.connectedAt);
-                } else if (direction === 'desc') {
+                } else if (order === 'desc') {
                     return new Date(b.connectedAt) - new Date(a.connectedAt);
                 }
             });
         } else if (key === 'username') {
             return [...profiles].sort((a, b) => {
-                if (direction === 'asc') {
+                if (order === 'asc') {
                     return a.username.localeCompare(b.username);
-                } else if (direction === 'desc') {
+                } else if (order === 'desc') {
                     return b.username.localeCompare(a.username);
                 }
             });
@@ -56,11 +56,6 @@ const Data = () => {
     }
 
     useEffect(() => {
-        setSortConfig({
-            key: 'connectedAt',
-            direction: 'desc',
-        })
-
         const renderUnfollowerDataAtInit = () => {
             let unfollowerProfiles = JSON.parse(localStorage.getItem('unfollowerProfiles'));
             unfollowerProfiles = sortProfiles(unfollowerProfiles, sortConfig);
@@ -200,13 +195,23 @@ const Data = () => {
                     <Space direction="horizontal" size="small">
                         sort by:
                         <Select defaultValue="connectedAt" onChange={(value) => {
-
+                            setSortConfig(
+                                {
+                                    key: value,
+                                    order: sortConfig.order
+                                }
+                            )
                         }}>
                             <Option value="username">Username</Option>
                             <Option value="connectedAt">Connected At</Option>
                         </Select>
                         <Select defaultValue="desc" onChange={(value) => {
-                            console.log(value)
+                            setSortConfig(
+                                {
+                                    key: sortConfig.key,
+                                    order: value
+                                }
+                            )
                         }}>
                             <Option value="asc">Ascending</Option>
                             <Option value="desc">Descending</Option>
