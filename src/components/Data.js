@@ -55,6 +55,29 @@ const Data = () => {
         return date.toDateString();
     }
 
+    const setProfilesByTypeOfDataThatAsk = () => {
+        switch (typeOfDataThatAsk) {
+            case "unfollowers":
+                let unfollowerProfiles = JSON.parse(localStorage.getItem('unfollowerProfiles'));
+                setProfiles(sortProfiles(unfollowerProfiles, sortConfig));
+                break;
+            case "followbacks":
+                let followbackProfiles = JSON.parse(localStorage.getItem('followbackProfiles'));
+                setProfiles(sortProfiles(followbackProfiles, sortConfig));
+                break;
+            case "mutual":
+                let mutualProfiles = JSON.parse(localStorage.getItem('mutualProfiles'));
+                setProfiles(sortProfiles(mutualProfiles, sortConfig));
+                break;
+            case "allProfiles":
+                let allProfiles = JSON.parse(localStorage.getItem('allProfiles'));
+                setProfiles(sortProfiles(allProfiles, sortConfig));
+                break;
+            default:
+                console.error()
+        }
+    };
+
     useEffect(() => {
         const renderUnfollowerDataAtInit = () => {
             let unfollowerProfiles = JSON.parse(localStorage.getItem('unfollowerProfiles'));
@@ -66,32 +89,12 @@ const Data = () => {
     }, []);
 
     useEffect(() => {
-        const setProfilesByTypeOfDataThatAsk = () => {
-            let unfollowerProfiles = JSON.parse(localStorage.getItem('unfollowerProfiles'));
-            let followbackProfiles = JSON.parse(localStorage.getItem('followbackProfiles'));
-            let mutualProfiles = JSON.parse(localStorage.getItem('mutualProfiles'));
-            let allProfiles = JSON.parse(localStorage.getItem('allProfiles'));
-
-            switch (typeOfDataThatAsk) {
-                case "unfollowers":
-                    setProfiles(sortProfiles(unfollowerProfiles, sortConfig));
-                    break;
-                case "followbacks":
-                    setProfiles(sortProfiles(followbackProfiles, sortConfig));
-                    break;
-                case "mutual":
-                    setProfiles(sortProfiles(mutualProfiles, sortConfig));
-                    break;
-                case "allProfiles":
-                    setProfiles(sortProfiles(allProfiles, sortConfig));
-                    break;
-                default:
-                    console.error()
-            }
-        };
-
         setProfilesByTypeOfDataThatAsk();
     }, [typeOfDataThatAsk]);
+
+    useEffect(() => {
+        setProfilesByTypeOfDataThatAsk();
+    }, [sortConfig]);
 
     const homeTitleWordingMap = {
         "unfollowers": "unfollow you", "followbacks": "follow you back", "mutual": "mutual with you",
