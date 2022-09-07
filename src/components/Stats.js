@@ -1,11 +1,11 @@
 import {Card, Col, Divider, Row, Space} from "antd";
 
-const getPercentOfProfilesOfMutual = () => {
+/*onst getPercentOfProfilesOfMutual = () => {
     let mutual = JSON.parse(localStorage.getItem('mutualUsernames')) || [];
 
     let percentOfProfilesWithMutual = (profiles.length / mutual.length).toFixed(5);
     return `${percentOfProfilesWithMutual}%`;
-}
+}*/
 
 const getDifferenceBetweenFollowerAndFollowing = () => {
     let followersProfiles = JSON.parse(localStorage.getItem('followerUsernames'));
@@ -47,3 +47,5 @@ const Stats = () => {
         </div>
     )
 }
+
+export default Stats;

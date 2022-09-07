@@ -5,6 +5,7 @@ import {Divider, Menu, Space} from "antd";
 import Data from "./components/Data";
 import Uploader from './components/Uploader';
 import Config from "./components/Config";
+import Stats from "./components/Stats";
 
 function App() {
     return (
@@ -22,11 +23,11 @@ function App() {
                                 display: 'flex',
                                 justifyContent: 'center'
                             }} mode="horizontal">
-                                <Menu.Item key="home">
-                                    <Link to="/">Home</Link>
+                                <Menu.Item key="stats">
+                                    <Link to="/stats">Stats</Link>
                                 </Menu.Item>
                                 <Menu.Item key="data">
-                                    <Link to="/data">Data</Link>
+                                    <Link to="/">Data</Link>
                                 </Menu.Item>
                                 <Menu.Item key="uploadFile">
                                     <Link to="/upload">Upload</Link>
@@ -37,7 +38,10 @@ function App() {
                             </Menu>
 
                             <Switch>
-                                <Route exact path="/data">
+                                <Route exact path="/stats">
+                                    <Stats/>
+                                </Route>
+                                <Route exact path="/">
                                     <Data/>
                                 </Route>
                                 <Route exact path="/upload">
