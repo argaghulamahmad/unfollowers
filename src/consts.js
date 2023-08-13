@@ -8,13 +8,11 @@ const typeOfDataThatAskSelectMap = {
     followbacks: 'Followbacks',
     mutual: 'Mutuals',
     allProfiles: 'All profiles',
-}
+};
 
 export {
     followersJsonFileName,
     followingJsonFileName,
-
     acceptedUploadedFilenames,
-
     typeOfDataThatAskSelectMap
-}
+};
