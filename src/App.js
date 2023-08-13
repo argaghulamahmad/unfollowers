@@ -33,7 +33,7 @@ function App() {
                             </Menu>
                             <Switch>
                                 {menuItems.map(item => (
-                                    <Route key={item.key} exact path={item.path} render={() => <item.component />} />
+                                    <Route key={item.key} exact path={item.path} component={item.component} />
                                 ))}
                             </Switch>
                         </Space>
