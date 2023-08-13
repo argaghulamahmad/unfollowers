@@ -57,7 +57,7 @@ const Uploader = () => {
 
                                     switch (file.name) {
                                         case followersJsonFileName:
-                                            const {relationships_followers: followersJsonParsedResult} = JSON.parse(result)
+                                            const followersJsonParsedResult = JSON.parse(result)
 
                                             let followerProfiles = followersJsonParsedResult.map(item => {
                                                 let data = item.string_list_data[0];
@@ -79,7 +79,7 @@ const Uploader = () => {
                                             });
                                             break;
                                         case followingJsonFileName:
-                                            const {relationships_following: followingJsonParsedResult} = JSON.parse(result)
+                                            const followingJsonParsedResult = JSON.parse(result)
 
                                             let followingProfiles = followingJsonParsedResult.map(item => {
                                                 let data = item.string_list_data[0];
