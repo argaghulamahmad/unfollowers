@@ -158,35 +158,45 @@ const Insight = () => {
             <Button type="primary"
                     style={{width: '100%'}}
                     onClick={() => {
-                        let randomUsernames = [];
+                        const generateRandomProfiles = (profiles, visitedUsernames, maxCount) => {
+                            let unvisitedProfiles = profiles.filter(profile => !visitedUsernames.includes(profile.username));
+                            let remainingUnvisitedUsernames = [...new Set(unvisitedProfiles.map(profile => profile.username))];
+                            let randomUsernames = [];
 
+                            for (let i = 0; i < maxCount; i++) {
+                                if (remainingUnvisitedUsernames.length > 0) {
+                                    let randomProfileUsername = remainingUnvisitedUsernames.splice(Math.floor(Math.random() * remainingUnvisitedUsernames.length), 1)[0];
+                                    randomUsernames.push(randomProfileUsername);
+                                }
+                            }
+
+                            return randomUsernames;
+                        };
+
+                        const updateVisitedUsernames = (visitedUsernames, randomUsernames) => {
+                            visitedUsernames = visitedUsernames.concat(randomUsernames);
+                            localStorage.setItem('visitedRandomUsernames', JSON.stringify(visitedUsernames));
+                        };
+
+                        let randomUsernames = [];
                         let visitedRandomUsernames = JSON.parse(localStorage.getItem('visitedRandomUsernames')) || [];
-                        let unvisitedRandomProfiles = profiles.filter(profile => !visitedRandomUsernames.includes(profile.username));
-                        let unvisitedRandomProfileUsernames = unvisitedRandomProfiles.map(profile => profile.username);
-                        let uniqueUnvisitedRandomProfileUsernames = [...new Set(unvisitedRandomProfileUsernames)];
 
                         let feelLuckyGeneratorCounts = JSON.parse(localStorage.getItem('config'))?.feelLuckyGeneratorCounts || 5;
-                        for (let i = 0; i < feelLuckyGeneratorCounts; i++) {
-                            if (uniqueUnvisitedRandomProfileUsernames.length > 0) {
-                                let randomProfileUsername = uniqueUnvisitedRandomProfileUsernames.splice(Math.floor(Math.random() * uniqueUnvisitedRandomProfileUsernames.length), 1)[0];
-                                randomUsernames.push(randomProfileUsername);
-                            }
-                        }
+                        randomUsernames = generateRandomProfiles(profiles, visitedRandomUsernames, feelLuckyGeneratorCounts);
 
                         if (randomUsernames.length > 0) {
                             notification.success({
                                 message: 'Success',
                                 description: `${randomUsernames.length} ${typeOfDataThatAsk} profiles loaded!`,
-                            })
+                            });
                         } else {
                             notification.info({
-                                message: 'There is no more profiles to load!',
-                                description: `There is no more ${typeOfDataThatAsk} profiles to load! Reset feel lucky generator data to load random profiles again.`,
-                            })
+                                message: 'There are no more profiles to load!',
+                                description: `There are no more ${typeOfDataThatAsk} profiles to load! Reset the feel lucky generator data to load random profiles again.`,
+                            });
                         }
 
-                        visitedRandomUsernames = visitedRandomUsernames.concat(randomUsernames);
-                        localStorage.setItem('visitedRandomUsernames', JSON.stringify(visitedRandomUsernames));
+                        updateVisitedUsernames(visitedRandomUsernames, randomUsernames);
 
                         randomUsernames.forEach(username => {
                             openInstagramWithDelay(username);
