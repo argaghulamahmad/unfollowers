@@ -72,19 +72,6 @@ const Stats = () => {
                 </Row>
                 <StatsCard content={getDifferenceBetweenFollowerAndFollowing().wording} />
             </Space>
-
-            <Divider orientation="left">Data</Divider>
-
-            <Tabs defaultActiveKey="1" tabPosition={'right'}>
-                <StatsTabPane
-                    tabKey="1"
-                    dataSource={JSON.parse(localStorage.getItem('followingProfiles'))}
-                />
-                <StatsTabPane
-                    tabKey="2"
-                    dataSource={JSON.parse(localStorage.getItem('followerProfiles'))}
-                />
-            </Tabs>
         </div>
     ) : (
         <Uploader />
