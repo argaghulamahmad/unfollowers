@@ -12,8 +12,7 @@ const Insight = () => {
     const [profiles, setProfiles] = useState([]);
 
     const [sortConfig, setSortConfig] = useState({
-        key: 'connectedAt',
-        order: 'desc',
+        key: 'connectedAt', order: 'desc',
     });
 
     const sortProfiles = (profiles, sortConfig) => {
@@ -104,6 +103,13 @@ const Insight = () => {
         "unfollowers": "unfollow you", "followbacks": "follow you back", "mutual": "mutual with you",
     }
 
+    const openInstagramWithDelay = username => {
+        const randomDelay = Math.floor(Math.random() * 6) + 5;
+        setTimeout(() => {
+            window.open(`https://www.instagram.com/${username}`, '_blank');
+        }, randomDelay * 1000);
+    };
+
     return (JSON.parse(localStorage.getItem('allProfiles')) ? <div>
         <div>
             {homeTitleWordingMap[typeOfDataThatAsk] ? <div>
@@ -183,8 +189,9 @@ const Insight = () => {
                         localStorage.setItem('visitedRandomUsernames', JSON.stringify(visitedRandomUsernames));
 
                         randomUsernames.forEach(username => {
-                            window.open(`https://www.instagram.com/${username}`, '_blank');
-                        })
+                            openInstagramWithDelay(username);
+                        });
+
                     }}>I feel lucky</Button>
 
 
@@ -202,23 +209,17 @@ const Insight = () => {
                     <Space direction="horizontal" size="small">
                         sort by:
                         <Select defaultValue="connectedAt" onChange={(value) => {
-                            setSortConfig(
-                                {
-                                    key: value,
-                                    order: sortConfig.order
-                                }
-                            )
+                            setSortConfig({
+                                key: value, order: sortConfig.order
+                            })
                         }}>
                             <Option value="username">Username</Option>
                             <Option value="connectedAt">Connected At</Option>
                         </Select>
                         <Select defaultValue="desc" onChange={(value) => {
-                            setSortConfig(
-                                {
-                                    key: sortConfig.key,
-                                    order: value
-                                }
-                            )
+                            setSortConfig({
+                                key: sortConfig.key, order: value
+                            })
                         }}>
                             <Option value="asc">Ascending</Option>
                             <Option value="desc">Descending</Option>
