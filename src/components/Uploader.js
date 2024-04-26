@@ -33,8 +33,10 @@ const Uploader = () => {
     const handleFetchGist = () => {
         const followingsProfile = fetchGist(gistId, githubToken, 'followings.json');
         const followersProfile = fetchGist(gistId, githubToken, 'followers.json');
+        const allProfiles = fetchGist(gistId, githubToken, 'allProfiles.json');
         localStorage.setItem('followingsProfile', JSON.stringify(followingsProfile));
         localStorage.setItem('followersProfile', JSON.stringify(followersProfile));
+        localStorage.setItem('allProfiles', JSON.stringify(allProfiles));
     };
 
     const handleUpdateGist = () => {
