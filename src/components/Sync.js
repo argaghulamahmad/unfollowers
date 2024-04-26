@@ -34,18 +34,30 @@ const Sync = () => {
         const followingsProfile = fetchGist(gistId, githubToken, 'followings.json');
         const followersProfile = fetchGist(gistId, githubToken, 'followers.json');
         const allProfiles = fetchGist(gistId, githubToken, 'allProfiles.json');
+        const unfollowerProfiles = fetchGist(gistId, githubToken, 'unfollowers.json');
+        const followbackProfiles = fetchGist(gistId, githubToken, 'followbacks.json');
+        const mutualProfiles = fetchGist(gistId, githubToken, 'mutuals.json');
         localStorage.setItem('followingsProfile', JSON.stringify(followingsProfile));
         localStorage.setItem('followersProfile', JSON.stringify(followersProfile));
         localStorage.setItem('allProfiles', JSON.stringify(allProfiles));
+        localStorage.setItem('unfollowerProfiles', JSON.stringify(unfollowerProfiles));
+        localStorage.setItem('followbackProfiles', JSON.stringify(followbackProfiles));
+        localStorage.setItem('mutualProfiles', JSON.stringify(mutualProfiles));
     };
 
     const handleUpdateGist = () => {
         const followerProfiles = localStorage.getItem('followerProfiles');
         const followingProfiles = localStorage.getItem('followingProfiles');
         const allProfiles = localStorage.getItem('allProfiles');
+        const unfollowerProfiles = localStorage.getItem('unfollowerProfiles');
+        const followbackProfiles = localStorage.getItem('followbackProfiles');
+        const mutualProfiles = localStorage.getItem('mutualProfiles');
         updateGist(gistId, githubToken, 'followers.json', followerProfiles);
         updateGist(gistId, githubToken, 'followings.json', followingProfiles);
         updateGist(gistId, githubToken, 'allProfiles.json', allProfiles);
+        updateGist(gistId, githubToken, 'unfollowers.json', unfollowerProfiles);
+        updateGist(gistId, githubToken, 'followbacks.json', followbackProfiles);
+        updateGist(gistId, githubToken, 'mutuals.json', mutualProfiles);
     };
 
 
