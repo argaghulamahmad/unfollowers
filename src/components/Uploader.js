@@ -40,7 +40,7 @@ const Uploader = () => {
     const handleUpdateGist = () => {
         const followerProfiles = localStorage.getItem('followerProfiles');
         const followingProfiles = localStorage.getItem('followingProfiles');
-        updateGist(gistId, githubToken, 'followings.json', followerProfiles);
+        updateGist(gistId, githubToken, 'followers.json', followerProfiles);
         updateGist(gistId, githubToken, 'followings.json', followingProfiles);
     };
 
