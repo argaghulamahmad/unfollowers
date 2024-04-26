@@ -9,7 +9,8 @@ import {
 import {fetchGist, updateGist} from "../utils/githubUtils";
 
 const {Dragger} = Upload;
-const {Panel} = Collapse;
+
+const gistWorker = new Worker('./gistWorker.js');
 
 class Profile {
     constructor(username, connectedAt) {
@@ -30,34 +31,49 @@ const Sync = () => {
         localStorage.setItem('githubToken', githubToken);
     }, [gistId, githubToken]);
 
+    useEffect(() => {
+        gistWorker.onmessage = (event) => {
+            const { type, fileName, content } = event.data;
+            switch (type) {
+                case 'fetchSuccess':
+                    localStorage.setItem(fileName, JSON.stringify(content));
+                    notification.success({ message: `Successfully fetched content for file: ${fileName}` });
+                    break;
+                case 'fetchError':
+                    notification.error({ message: `Failed to fetch content for file: ${fileName}` });
+                    break;
+                case 'updateSuccess':
+                    notification.success({ message: `Successfully updated content for file: ${fileName}` });
+                    break;
+                case 'updateError':
+                    notification.error({ message: `Failed to update content for file: ${fileName}` });
+                    break;
+                default:
+                    console.error('Invalid message type received from worker');
+            }
+        };
+
+        return () => {
+            gistWorker.terminate();
+        };
+    }, []);
+
     const handleFetchGist = () => {
-        const followingsProfile = fetchGist(gistId, githubToken, 'followings.json');
-        const followersProfile = fetchGist(gistId, githubToken, 'followers.json');
-        const allProfiles = fetchGist(gistId, githubToken, 'allProfiles.json');
-        const unfollowerProfiles = fetchGist(gistId, githubToken, 'unfollowers.json');
-        const followbackProfiles = fetchGist(gistId, githubToken, 'followbacks.json');
-        const mutualProfiles = fetchGist(gistId, githubToken, 'mutuals.json');
-        localStorage.setItem('followingsProfile', JSON.stringify(followingsProfile));
-        localStorage.setItem('followersProfile', JSON.stringify(followersProfile));
-        localStorage.setItem('allProfiles', JSON.stringify(allProfiles));
-        localStorage.setItem('unfollowerProfiles', JSON.stringify(unfollowerProfiles));
-        localStorage.setItem('followbackProfiles', JSON.stringify(followbackProfiles));
-        localStorage.setItem('mutualProfiles', JSON.stringify(mutualProfiles));
+        gistWorker.postMessage({ type: 'fetchGist', data: { gistId, githubToken, fileName: 'followings.json' } });
+        gistWorker.postMessage({ type: 'fetchGist', data: { gistId, githubToken, fileName: 'followers.json' } });
+        gistWorker.postMessage({ type: 'fetchGist', data: { gistId, githubToken, fileName: 'allProfiles.json' } });
+        gistWorker.postMessage({ type: 'fetchGist', data: { gistId, githubToken, fileName: 'unfollowers.json' } });
+        gistWorker.postMessage({ type: 'fetchGist', data: { gistId, githubToken, fileName: 'followbacks.json' } });
+        gistWorker.postMessage({ type: 'fetchGist', data: { gistId, githubToken, fileName: 'mutuals.json' } });
     };
 
     const handleUpdateGist = () => {
-        const followerProfiles = localStorage.getItem('followerProfiles');
-        const followingProfiles = localStorage.getItem('followingProfiles');
-        const allProfiles = localStorage.getItem('allProfiles');
-        const unfollowerProfiles = localStorage.getItem('unfollowerProfiles');
-        const followbackProfiles = localStorage.getItem('followbackProfiles');
-        const mutualProfiles = localStorage.getItem('mutualProfiles');
-        updateGist(gistId, githubToken, 'followers.json', followerProfiles);
-        updateGist(gistId, githubToken, 'followings.json', followingProfiles);
-        updateGist(gistId, githubToken, 'allProfiles.json', allProfiles);
-        updateGist(gistId, githubToken, 'unfollowers.json', unfollowerProfiles);
-        updateGist(gistId, githubToken, 'followbacks.json', followbackProfiles);
-        updateGist(gistId, githubToken, 'mutuals.json', mutualProfiles);
+        gistWorker.postMessage({ type: 'updateGist', data: { gistId, githubToken, fileName: 'followers.json', content: localStorage.getItem('followerProfiles') } });
+        gistWorker.postMessage({ type: 'updateGist', data: { gistId, githubToken, fileName: 'followings.json', content: localStorage.getItem('followingProfiles') } });
+        gistWorker.postMessage({ type: 'updateGist', data: { gistId, githubToken, fileName: 'allProfiles.json', content: localStorage.getItem('allProfiles') } });
+        gistWorker.postMessage({ type: 'updateGist', data: { gistId, githubToken, fileName: 'unfollowers.json', content: localStorage.getItem('unfollowerProfiles') } });
+        gistWorker.postMessage({ type: 'updateGist', data: { gistId, githubToken, fileName: 'followbacks.json', content: localStorage.getItem('followbackProfiles') } });
+        gistWorker.postMessage({ type: 'updateGist', data: { gistId, githubToken, fileName: 'mutuals.json', content: localStorage.getItem('mutualProfiles') } });
     };
 
 
