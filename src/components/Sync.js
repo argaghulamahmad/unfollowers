@@ -19,7 +19,7 @@ class Profile {
 }
 
 const Sync = () => {
-    const [gistId, setGistId] = useState(localStorage.getItem('gistId') || '5f1cb0d2c2dcfa77490139aa9d7e53f5');
+    const [gistId, setGistId] = useState(localStorage.getItem('gistId'));
     const [githubToken, setGithubToken] = useState(localStorage.getItem('githubToken'));
     const [lastUpdateAt, setLastUpdateAt] = useState(
         JSON.parse(localStorage.getItem('lastUpdateAt'))
