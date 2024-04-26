@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {InboxOutlined} from '@ant-design/icons';
-import {Upload, notification, Button, Divider, Space, Input} from 'antd';
+import {Upload, notification, Button, Divider, Space, List, Collapse, Empty, Input} from 'antd';
 import {
     acceptedUploadedFilenames,
     followersJsonFileName,
@@ -10,8 +10,7 @@ import {fetchGist, updateGist} from "../utils/githubUtils";
 
 const {Dragger} = Upload;
 
-const gistWorker = new Worker('../worker/gistWorker.js');
-const recomputeDataWorker = new Worker('./recomputeDataWorker.js');
+const gistWorker = new Worker('./gistWorker.js');
 
 class Profile {
     constructor(username, connectedAt) {
@@ -34,20 +33,20 @@ const Sync = () => {
 
     useEffect(() => {
         gistWorker.onmessage = (event) => {
-            const {type, fileName, content} = event.data;
+            const { type, fileName, content } = event.data;
             switch (type) {
                 case 'fetchSuccess':
                     localStorage.setItem(fileName, JSON.stringify(content));
-                    notification.success({message: `Successfully fetched content for file: ${fileName}`});
+                    notification.success({ message: `Successfully fetched content for file: ${fileName}` });
                     break;
                 case 'fetchError':
-                    notification.error({message: `Failed to fetch content for file: ${fileName}`});
+                    notification.error({ message: `Failed to fetch content for file: ${fileName}` });
                     break;
                 case 'updateSuccess':
-                    notification.success({message: `Successfully updated content for file: ${fileName}`});
+                    notification.success({ message: `Successfully updated content for file: ${fileName}` });
                     break;
                 case 'updateError':
-                    notification.error({message: `Failed to update content for file: ${fileName}`});
+                    notification.error({ message: `Failed to update content for file: ${fileName}` });
                     break;
                 default:
                     console.error('Invalid message type received from worker');
@@ -60,84 +59,85 @@ const Sync = () => {
     }, []);
 
     const handleFetchGist = () => {
-        gistWorker.postMessage({type: 'fetchGist', data: {gistId, githubToken, fileName: 'followings.json'}});
-        gistWorker.postMessage({type: 'fetchGist', data: {gistId, githubToken, fileName: 'followers.json'}});
-        gistWorker.postMessage({type: 'fetchGist', data: {gistId, githubToken, fileName: 'allProfiles.json'}});
-        gistWorker.postMessage({type: 'fetchGist', data: {gistId, githubToken, fileName: 'unfollowers.json'}});
-        gistWorker.postMessage({type: 'fetchGist', data: {gistId, githubToken, fileName: 'followbacks.json'}});
-        gistWorker.postMessage({type: 'fetchGist', data: {gistId, githubToken, fileName: 'mutuals.json'}});
+        gistWorker.postMessage({ type: 'fetchGist', data: { gistId, githubToken, fileName: 'followings.json' } });
+        gistWorker.postMessage({ type: 'fetchGist', data: { gistId, githubToken, fileName: 'followers.json' } });
+        gistWorker.postMessage({ type: 'fetchGist', data: { gistId, githubToken, fileName: 'allProfiles.json' } });
+        gistWorker.postMessage({ type: 'fetchGist', data: { gistId, githubToken, fileName: 'unfollowers.json' } });
+        gistWorker.postMessage({ type: 'fetchGist', data: { gistId, githubToken, fileName: 'followbacks.json' } });
+        gistWorker.postMessage({ type: 'fetchGist', data: { gistId, githubToken, fileName: 'mutuals.json' } });
     };
 
     const handleUpdateGist = () => {
-        gistWorker.postMessage({
-            type: 'updateGist',
-            data: {gistId, githubToken, fileName: 'followers.json', content: localStorage.getItem('followerProfiles')}
-        });
-        gistWorker.postMessage({
-            type: 'updateGist',
-            data: {gistId, githubToken, fileName: 'followings.json', content: localStorage.getItem('followingProfiles')}
-        });
-        gistWorker.postMessage({
-            type: 'updateGist',
-            data: {gistId, githubToken, fileName: 'allProfiles.json', content: localStorage.getItem('allProfiles')}
-        });
-        gistWorker.postMessage({
-            type: 'updateGist',
-            data: {
-                gistId,
-                githubToken,
-                fileName: 'unfollowers.json',
-                content: localStorage.getItem('unfollowerProfiles')
-            }
-        });
-        gistWorker.postMessage({
-            type: 'updateGist',
-            data: {
-                gistId,
-                githubToken,
-                fileName: 'followbacks.json',
-                content: localStorage.getItem('followbackProfiles')
-            }
-        });
-        gistWorker.postMessage({
-            type: 'updateGist',
-            data: {gistId, githubToken, fileName: 'mutuals.json', content: localStorage.getItem('mutualProfiles')}
-        });
+        gistWorker.postMessage({ type: 'updateGist', data: { gistId, githubToken, fileName: 'followers.json', content: localStorage.getItem('followerProfiles') } });
+        gistWorker.postMessage({ type: 'updateGist', data: { gistId, githubToken, fileName: 'followings.json', content: localStorage.getItem('followingProfiles') } });
+        gistWorker.postMessage({ type: 'updateGist', data: { gistId, githubToken, fileName: 'allProfiles.json', content: localStorage.getItem('allProfiles') } });
+        gistWorker.postMessage({ type: 'updateGist', data: { gistId, githubToken, fileName: 'unfollowers.json', content: localStorage.getItem('unfollowerProfiles') } });
+        gistWorker.postMessage({ type: 'updateGist', data: { gistId, githubToken, fileName: 'followbacks.json', content: localStorage.getItem('followbackProfiles') } });
+        gistWorker.postMessage({ type: 'updateGist', data: { gistId, githubToken, fileName: 'mutuals.json', content: localStorage.getItem('mutualProfiles') } });
     };
 
-    useEffect(() => {
-        recomputeDataWorker.onmessage = (event) => {
-            const {type, data} = event.data;
-            if (type === 'recomputeSuccess') {
-                const {
-                    allProfiles,
-                    followbackUsernames,
-                    unfollowerUsernames,
-                    mutualUsernames,
-                    followbackProfiles,
-                    unfollowbackProfiles,
-                    mutualProfiles,
-                    lastUpdateAt,
-                } = data;
 
-                localStorage.setItem('allProfiles', JSON.stringify(allProfiles));
-                localStorage.setItem('followbackUsernames', JSON.stringify(followbackUsernames));
-                localStorage.setItem('unfollowerUsernames', JSON.stringify(unfollowerUsernames));
-                localStorage.setItem('mutualUsernames', JSON.stringify(mutualUsernames));
-                localStorage.setItem('followbackProfiles', JSON.stringify(followbackProfiles));
-                localStorage.setItem('unfollowbackProfiles', JSON.stringify(unfollowbackProfiles));
-                localStorage.setItem('mutualProfiles', JSON.stringify(mutualProfiles));
-                localStorage.setItem('lastUpdateAt', JSON.stringify(lastUpdateAt));
+    const recomputeData = allProfiles => {
+        const allProfilesMap = allProfiles.reduce((map, profile) => {
+            map.set(profile.username, profile);
+            return map;
+        }, new Map());
 
-                notification.success({
-                    message: 'Data recomputed successfully.',
-                });
-            }
-        };
-    }, []);
+        const allProfilesArray = Array.from(allProfilesMap.values());
+        allProfilesArray.sort((a, b) => a.connectedAt - b.connectedAt);
 
-    const recomputeData = (allProfiles) => {
-        recomputeDataWorker.postMessage({allProfiles});
+        localStorage.setItem('allProfiles', JSON.stringify(allProfilesArray));
+        localStorage.setItem('allProfilesTotal', allProfilesArray.length);
+
+        const followerUsernames = JSON.parse(localStorage.getItem('followerUsernames')) || [];
+        const followingUsernames = JSON.parse(localStorage.getItem('followingUsernames')) || [];
+
+        const followbackUsernames = followerUsernames.filter(
+            (username) => !followingUsernames.includes(username)
+        );
+        localStorage.setItem('followbackUsernames', JSON.stringify(followbackUsernames));
+
+        const unfollowerUsernames = followingUsernames.filter(
+            (username) => !followerUsernames.includes(username)
+        );
+        localStorage.setItem('unfollowerUsernames', JSON.stringify(unfollowerUsernames));
+
+        const mutualUsernames = followingUsernames.filter((username) =>
+            followerUsernames.includes(username)
+        );
+        localStorage.setItem('mutualUsernames', JSON.stringify(mutualUsernames));
+
+        const followbackProfiles = followbackUsernames.map((username) => {
+            const profile = allProfilesMap.get(username);
+            return new Profile(username, profile.connectedAt);
+        });
+        localStorage.setItem('followbackProfiles', JSON.stringify(followbackProfiles));
+        localStorage.setItem('followbacksProfilesTotal', followbackProfiles.length);
+
+        const unfollowbackProfiles = unfollowerUsernames.map((username) => {
+            const profile = allProfilesMap.get(username);
+            return new Profile(username, profile.connectedAt);
+        });
+        localStorage.setItem('unfollowerProfiles', JSON.stringify(unfollowbackProfiles));
+        localStorage.setItem('unfollowersProfilesTotal', unfollowbackProfiles.length);
+
+        const mutualProfiles = mutualUsernames.map((username) => {
+            const profile = allProfilesMap.get(username);
+            return new Profile(username, profile.connectedAt);
+        });
+        localStorage.setItem('mutualProfiles', JSON.stringify(mutualProfiles));
+        localStorage.setItem('mutualProfilesTotal', mutualProfiles.length);
+
+        const currentTime = new Date().getTime();
+        setLastUpdateAt(currentTime);
+        localStorage.setItem('lastUpdateAt', JSON.stringify(currentTime));
+
+        setTimeout(() => {
+            window.location.href = '../';
+        }, 1000);
+        notification.info({
+            message: 'Redirecting to home page in 1 second',
+        });
     };
 
     const buttonContainerStyle = {
