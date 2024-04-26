@@ -9,8 +9,6 @@ import {
 import {fetchGist, updateGist} from "../utils/githubUtils";
 
 const {Dragger} = Upload;
-const {Panel} = Collapse;
-
 class Profile {
     constructor(username, connectedAt) {
         this.username = username;
