@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Col, Divider, Row, Space, Table, Tabs } from 'antd';
-import Uploader from './Uploader';
+import Sync from './Sync';
 
 const getDifferenceBetweenFollowerAndFollowing = () => {
     const followersProfiles = JSON.parse(localStorage.getItem('followerUsernames'));
@@ -74,7 +74,7 @@ const Stats = () => {
             </Space>
         </div>
     ) : (
-        <Uploader />
+        <Sync />
     );
 };
 

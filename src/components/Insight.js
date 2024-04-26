@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import {BackTop, Button, Card, Col, Divider, List, notification, Row, Select, Space} from "antd";
-import Uploader from "./Uploader";
+import Sync from "./Sync";
 import {typeOfDataThatAskSelectMap} from "../consts";
 import {Option} from "antd/es/mentions";
 
@@ -251,7 +251,7 @@ const Insight = () => {
             </Card>
         </Space>
         <BackTop/>
-    </div> : <Uploader/>);
+    </div> : <Sync/>);
 }
 
 export default Insight;

@@ -18,7 +18,7 @@ class Profile {
     }
 }
 
-const Uploader = () => {
+const Sync = () => {
     const [gistId, setGistId] = useState(localStorage.getItem('gistId') || '5f1cb0d2c2dcfa77490139aa9d7e53f5');
     const [githubToken, setGithubToken] = useState(localStorage.getItem('githubToken'));
     const [lastUpdateAt, setLastUpdateAt] = useState(
@@ -288,4 +288,4 @@ const Uploader = () => {
     );
 };
 
-export default Uploader;
+export default Sync;
