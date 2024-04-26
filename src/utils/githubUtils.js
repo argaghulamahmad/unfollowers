@@ -18,12 +18,12 @@ export const fetchGist = async (gistId, githubToken, fileName) => {
         const gistData = await response.json();
         const gistContent = jsonminify(gistData.files[fileName].content);
 
-        openNotification('success', 'Fetch Gist successful');
+        openNotification('success', `Successfully fetched content for file: ${fileName}`);
 
         return gistContent;
     } catch (error) {
         console.error(error.message);
-        openNotification('error', 'Fetch Gist failed');
+        openNotification('error', `Failed to fetch content for file: ${fileName}`);
     }
 };
 
@@ -52,9 +52,9 @@ export const updateGist = async (gistId, githubToken, fileName, data) => {
             throw new Error('Update failed');
         }
 
-        openNotification('success', 'Update to Gist successful');
+        openNotification('success', `Successfully updated content for file: ${fileName}`);
     } catch (error) {
         console.error(error.message);
-        openNotification('error', 'Update to Gist failed');
+        openNotification('error', `Failed to update content for file: ${fileName}`);
     }
 };
