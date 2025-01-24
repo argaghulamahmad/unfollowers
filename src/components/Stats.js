@@ -1,80 +1,157 @@
-import React from 'react';
-import { Card, Col, Divider, Row, Space, Table, Tabs } from 'antd';
-import Sync from './Sync';
-
-const getDifferenceBetweenFollowerAndFollowing = () => {
-    const followersProfiles = JSON.parse(localStorage.getItem('followerUsernames'));
-    const followingProfiles = JSON.parse(localStorage.getItem('followingUsernames'));
-
-    const isFollowersBiggerThanFollowing = followersProfiles.length - followingProfiles.length;
-    const discrepancies = isFollowersBiggerThanFollowing > 0
-        ? followersProfiles.filter(username => !followingProfiles.includes(username))
-        : followingProfiles.filter(username => !followersProfiles.includes(username));
-
-    const wording = (isFollowersBiggerThanFollowing > 0
-            ? "You have more followers than followings."
-            : "You have more followings than followers.") +
-        ` A total of ${discrepancies.length} ${discrepancies.length > 1 ? "profiles" : "profile"}.`;
-
-    return {
-        discrepanciesLength: discrepancies.length,
-        isFollowersBiggerThanFollowing: isFollowersBiggerThanFollowing > 0,
-        profileDiscrepancies: discrepancies,
-        wording: wording,
-    };
-};
-
-const tableCols = [
-    {
-        title: 'Username',
-        dataIndex: 'username',
-        key: 'username',
-    },
-    {
-        title: 'Connected At',
-        dataIndex: 'connectedAt',
-        key: 'connectedAt',
-    },
-];
-
-const FollowerFollowingCard = ({ title, profiles }) => (
-    <Col span={12}>
-        <Card title={title} bordered={true}>
-            {profiles.length} profiles
-        </Card>
-    </Col>
-);
-
-const StatsCard = ({ content }) => (
-    <Card style={{ width: '100%' }}>{content}</Card>
-);
-
-const StatsTabPane = ({ tabKey, dataSource }) => (
-    <Tabs.TabPane tab={tabKey} key={tabKey}>
-        <Table dataSource={dataSource} columns={tableCols} />
-    </Tabs.TabPane>
-);
+import React, { useMemo } from 'react';
+import { Card, Spin, Empty, Row, Col, Statistic, Button, Table, Progress } from 'antd';
+import { UserOutlined, UserDeleteOutlined, DownloadOutlined } from '@ant-design/icons';
+import { useIndexedDB } from '../hooks/useIndexedDB';
+import { STORES } from '../utils/indexedDBUtils';
 
 const Stats = () => {
-    return JSON.parse(localStorage.getItem('allProfiles')) ? (
-        <div>
-            <Divider orientation="left">Stats</Divider>
-            <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
-                <Row gutter={16}>
-                    <FollowerFollowingCard
-                        title="Follower"
-                        profiles={JSON.parse(localStorage.getItem('followerProfiles'))}
-                    />
-                    <FollowerFollowingCard
-                        title="Following"
-                        profiles={JSON.parse(localStorage.getItem('followingProfiles'))}
-                    />
-                </Row>
-                <StatsCard content={getDifferenceBetweenFollowerAndFollowing().wording} />
-            </Space>
+    const {
+        data: followers,
+        loading: followersLoading,
+        error: followersError
+    } = useIndexedDB(STORES.FOLLOWERS);
+
+    const {
+        data: unfollowers,
+        loading: unfollowersLoading,
+        error: unfollowersError
+    } = useIndexedDB(STORES.UNFOLLOWERS);
+
+    const stats = useMemo(() => {
+        if (!followers.length && !unfollowers.length) return null;
+
+        const totalProfiles = followers.length + unfollowers.length;
+        const retentionRate = (followers.length / totalProfiles) * 100;
+        const churnRate = (unfollowers.length / totalProfiles) * 100;
+
+        return {
+            totalProfiles,
+            retentionRate: Math.round(retentionRate * 100) / 100,
+            churnRate: Math.round(churnRate * 100) / 100
+        };
+    }, [followers, unfollowers]);
+
+    const unfollowerColumns = [
+        {
+            title: 'Username',
+            dataIndex: 'username',
+            key: 'username',
+            render: (text) => <a href={`https://instagram.com/${text}`} target="_blank" rel="noreferrer">{text}</a>
+        },
+        {
+            title: 'Unfollowed Date',
+            dataIndex: 'unfollowedAt',
+            key: 'unfollowedAt',
+            render: (date) => new Date(date).toLocaleDateString()
+        }
+    ];
+
+    const handleExportData = () => {
+        const data = {
+            followers,
+            unfollowers,
+            stats,
+            exportDate: new Date().toISOString()
+        };
+
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `unfollowers-stats-${new Date().toISOString()}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    if (followersLoading || unfollowersLoading) {
+        return <Spin size="large" />;
+    }
+
+    if (followersError || unfollowersError) {
+        return <div>Error loading data. Please try again later.</div>;
+    }
+
+    return (
+        <div className="stats-container">
+            <Row gutter={[16, 16]}>
+                <Col span={24}>
+                    <Button
+                        type="primary"
+                        icon={<DownloadOutlined />}
+                        onClick={handleExportData}
+                        style={{ marginBottom: 16 }}
+                    >
+                        Export Data
+                    </Button>
+                </Col>
+
+                <Col xs={24} sm={12}>
+                    <Card>
+                        <Statistic
+                            title="Current Followers"
+                            value={followers.length}
+                            prefix={<UserOutlined />}
+                        />
+                    </Card>
+                </Col>
+
+                <Col xs={24} sm={12}>
+                    <Card>
+                        <Statistic
+                            title="Total Unfollowers"
+                            value={unfollowers.length}
+                            prefix={<UserDeleteOutlined />}
+                            valueStyle={{ color: '#cf1322' }}
+                        />
+                    </Card>
+                </Col>
+
+                {stats && (
+                    <>
+                        <Col xs={24} sm={12}>
+                            <Card title="Follower Retention">
+                                <Progress
+                                    type="circle"
+                                    percent={stats.retentionRate}
+                                    format={percent => `${percent}%`}
+                                    status="active"
+                                />
+                                <p style={{ marginTop: 16 }}>
+                                    Of {stats.totalProfiles} total profiles tracked
+                                </p>
+                            </Card>
+                        </Col>
+
+                        <Col xs={24} sm={12}>
+                            <Card title="Churn Rate">
+                                <Progress
+                                    type="circle"
+                                    percent={stats.churnRate}
+                                    format={percent => `${percent}%`}
+                                    status="exception"
+                                />
+                                <p style={{ marginTop: 16 }}>
+                                    Lost followers percentage
+                                </p>
+                            </Card>
+                        </Col>
+                    </>
+                )}
+
+                <Col span={24}>
+                    <Card title="Recent Unfollowers">
+                        <Table
+                            dataSource={unfollowers.slice().sort((a, b) => b.unfollowedAt - a.unfollowedAt)}
+                            columns={unfollowerColumns}
+                            pagination={{ pageSize: 5 }}
+                            rowKey="id"
+                        />
+                    </Card>
+                </Col>
+            </Row>
         </div>
-    ) : (
-        <Sync />
     );
 };
 

@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useEffect, useState, useMemo, useCallback} from "react";
 import {BackTop, Button, Card, Col, Divider, List, notification, Row, Select, Space} from "antd";
 import Sync from "./Sync";
 import {typeOfDataThatAskSelectMap} from "../consts";
@@ -15,33 +15,25 @@ const Insight = () => {
         key: 'connectedAt', order: 'desc',
     });
 
-    const sortProfiles = (profiles, sortConfig) => {
-        const {key, order} = sortConfig;
+    const sortProfiles = useCallback((profiles, sortConfig) => {
+        if (!profiles) return [];
 
-        if (key === 'connectedAt') {
-            return [...profiles].sort((a, b) => {
-                if (order === 'asc') {
-                    return new Date(a.connectedAt) - new Date(b.connectedAt);
-                } else if (order === 'desc') {
-                    return new Date(b.connectedAt) - new Date(a.connectedAt);
-                } else {
-                    return 0;
-                }
-            });
-        } else if (key === 'username') {
-            return [...profiles].sort((a, b) => {
-                if (order === 'asc') {
-                    return a.username.localeCompare(b.username);
-                } else if (order === 'desc') {
-                    return b.username.localeCompare(a.username);
-                } else {
-                    return 0;
-                }
-            });
-        }
-    }
+        const { key, order } = sortConfig;
+        return [...profiles].sort((a, b) => {
+            if (key === 'connectedAt') {
+                const dateA = new Date(a.connectedAt * 1000);
+                const dateB = new Date(b.connectedAt * 1000);
+                return order === 'asc' ? dateA - dateB : dateB - dateA;
+            } else if (key === 'username') {
+                return order === 'asc'
+                    ? a.username.localeCompare(b.username)
+                    : b.username.localeCompare(a.username);
+            }
+            return 0;
+        });
+    }, []);
 
-    const handleTypeOfDataThatAskChangeEvent = (value) => {
+    const handleTypeOfDataThatAskChangeEvent = useCallback((value) => {
         localStorage.setItem("typeOfDataThatAsked", value);
         setTypeOfDataThatAsk(value)
 
@@ -51,14 +43,14 @@ const Insight = () => {
         notification.success({
             message: 'Success', description: description,
         })
-    }
+    }, []);
 
-    const epochToDateTime = (epoch) => {
+    const epochToDateTime = useCallback((epoch) => {
         let date = new Date(epoch * 1000);
         return date.toDateString();
-    }
+    }, []);
 
-    const setProfilesByTypeOfDataThatAsk = () => {
+    const setProfilesByTypeOfDataThatAsk = useCallback(() => {
         switch (typeOfDataThatAsk) {
             case "unfollowers":
                 let unfollowerProfiles = JSON.parse(localStorage.getItem('unfollowerProfiles'));
@@ -77,27 +69,32 @@ const Insight = () => {
                 setProfiles(sortProfiles(allProfiles, sortConfig));
                 break;
             default:
-                console.error()
+                console.error('Invalid type of data requested');
         }
-    };
+    }, [typeOfDataThatAsk, sortConfig, sortProfiles]);
 
     useEffect(() => {
         const renderUnfollowerDataAtInit = () => {
-            let unfollowerProfiles = JSON.parse(localStorage.getItem('unfollowerProfiles'));
-            unfollowerProfiles = sortProfiles(unfollowerProfiles, sortConfig);
-            setProfiles(unfollowerProfiles)
+            const unfollowerProfiles = JSON.parse(localStorage.getItem('unfollowerProfiles'));
+            if (unfollowerProfiles) {
+                const sortedProfiles = sortProfiles(unfollowerProfiles, sortConfig);
+                setProfiles(sortedProfiles);
+            }
         };
 
-        JSON.parse(localStorage.getItem('allProfiles')) && renderUnfollowerDataAtInit();
-    }, []);
+        const allProfiles = JSON.parse(localStorage.getItem('allProfiles'));
+        if (allProfiles) {
+            renderUnfollowerDataAtInit();
+        }
+    }, [sortConfig, sortProfiles, setProfiles]);
 
     useEffect(() => {
         JSON.parse(localStorage.getItem('allProfiles')) && setProfilesByTypeOfDataThatAsk();
-    }, [typeOfDataThatAsk]);
+    }, [typeOfDataThatAsk, setProfilesByTypeOfDataThatAsk]);
 
     useEffect(() => {
         JSON.parse(localStorage.getItem('allProfiles')) && setProfilesByTypeOfDataThatAsk();
-    }, [sortConfig]);
+    }, [sortConfig, setProfilesByTypeOfDataThatAsk]);
 
     const homeTitleWordingMap = {
         "unfollowers": "unfollow you", "followbacks": "follow you back", "mutual": "mutual with you",

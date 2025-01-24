@@ -43,83 +43,80 @@ const Sync = () => {
         localStorage.setItem('mutualProfiles', JSON.stringify(mutualProfiles));
     };
 
-    const handleUpdateGist = () => {
-        const followerProfiles = localStorage.getItem('followerProfiles');
-        const followingProfiles = localStorage.getItem('followingProfiles');
-        const allProfiles = localStorage.getItem('allProfiles');
-        const unfollowerProfiles = localStorage.getItem('unfollowerProfiles');
-        const followbackProfiles = localStorage.getItem('followbackProfiles');
-        const mutualProfiles = localStorage.getItem('mutualProfiles');
-        updateGist(gistId, githubToken, 'followers.json', followerProfiles);
-        updateGist(gistId, githubToken, 'followings.json', followingProfiles);
-        updateGist(gistId, githubToken, 'allProfiles.json', allProfiles);
-        updateGist(gistId, githubToken, 'unfollowers.json', unfollowerProfiles);
-        updateGist(gistId, githubToken, 'followbacks.json', followbackProfiles);
-        updateGist(gistId, githubToken, 'mutuals.json', mutualProfiles);
+    const handleUpdateGist = async () => {
+        try {
+            // Batch fetch all required data
+            const gistData = {
+                'followers.json': localStorage.getItem('followerProfiles'),
+                'followings.json': localStorage.getItem('followingProfiles'),
+                'allProfiles.json': localStorage.getItem('allProfiles'),
+                'unfollowers.json': localStorage.getItem('unfollowerProfiles'),
+                'followbacks.json': localStorage.getItem('followbackProfiles'),
+                'mutuals.json': localStorage.getItem('mutualProfiles')
+            };
+
+            // Execute all updates in parallel for better performance
+            await Promise.all(
+                Object.entries(gistData).map(([filename, content]) =>
+                    updateGist(gistId, githubToken, filename, content)
+                )
+            );
+
+            notification.success({
+                message: 'Gist updated successfully',
+                description: 'All profile data has been synced to GitHub Gist'
+            });
+        } catch (error) {
+            notification.error({
+                message: 'Failed to update Gist',
+                description: error.message
+            });
+        }
     };
 
 
-    const recomputeData = allProfiles => {
-        const allProfilesMap = allProfiles.reduce((map, profile) => {
-            map.set(profile.username, profile);
-            return map;
-        }, new Map());
+    const recomputeData = async allProfiles => {
+        try {
+            // Get the required data
+            const followerUsernames = JSON.parse(localStorage.getItem('followerUsernames')) || [];
+            const followingUsernames = JSON.parse(localStorage.getItem('followingUsernames')) || [];
 
-        const allProfilesArray = Array.from(allProfilesMap.values());
-        allProfilesArray.sort((a, b) => a.connectedAt - b.connectedAt);
+            // Call WASM module for heavy computations
+            const result = await window.processProfiles(
+                JSON.stringify(allProfiles),
+                JSON.stringify(followerUsernames),
+                JSON.stringify(followingUsernames)
+            );
 
-        localStorage.setItem('allProfiles', JSON.stringify(allProfilesArray));
-        localStorage.setItem('allProfilesTotal', allProfilesArray.length);
+            // Parse the result
+            const processedData = JSON.parse(result);
 
-        const followerUsernames = JSON.parse(localStorage.getItem('followerUsernames')) || [];
-        const followingUsernames = JSON.parse(localStorage.getItem('followingUsernames')) || [];
+            // Check for errors
+            if (processedData.error) {
+                throw new Error(processedData.error);
+            }
 
-        const followbackUsernames = followerUsernames.filter(
-            (username) => !followingUsernames.includes(username)
-        );
-        localStorage.setItem('followbackUsernames', JSON.stringify(followbackUsernames));
+            // Store all the processed data
+            Object.entries(processedData).forEach(([key, value]) => {
+                localStorage.setItem(key, JSON.stringify(value));
+            });
 
-        const unfollowerUsernames = followingUsernames.filter(
-            (username) => !followerUsernames.includes(username)
-        );
-        localStorage.setItem('unfollowerUsernames', JSON.stringify(unfollowerUsernames));
+            // Update last update timestamp
+            setLastUpdateAt(processedData.lastUpdateAt);
 
-        const mutualUsernames = followingUsernames.filter((username) =>
-            followerUsernames.includes(username)
-        );
-        localStorage.setItem('mutualUsernames', JSON.stringify(mutualUsernames));
-
-        const followbackProfiles = followbackUsernames.map((username) => {
-            const profile = allProfilesMap.get(username);
-            return new Profile(username, profile.connectedAt);
-        });
-        localStorage.setItem('followbackProfiles', JSON.stringify(followbackProfiles));
-        localStorage.setItem('followbacksProfilesTotal', followbackProfiles.length);
-
-        const unfollowbackProfiles = unfollowerUsernames.map((username) => {
-            const profile = allProfilesMap.get(username);
-            return new Profile(username, profile.connectedAt);
-        });
-        localStorage.setItem('unfollowerProfiles', JSON.stringify(unfollowbackProfiles));
-        localStorage.setItem('unfollowersProfilesTotal', unfollowbackProfiles.length);
-
-        const mutualProfiles = mutualUsernames.map((username) => {
-            const profile = allProfilesMap.get(username);
-            return new Profile(username, profile.connectedAt);
-        });
-        localStorage.setItem('mutualProfiles', JSON.stringify(mutualProfiles));
-        localStorage.setItem('mutualProfilesTotal', mutualProfiles.length);
-
-        const currentTime = new Date().getTime();
-        setLastUpdateAt(currentTime);
-        localStorage.setItem('lastUpdateAt', JSON.stringify(currentTime));
-
-        setTimeout(() => {
-            window.location.href = '../';
-        }, 1000);
-        notification.info({
-            message: 'Redirecting to home page in 1 second',
-        });
+            // Redirect after processing is complete
+            setTimeout(() => {
+                window.location.href = '../';
+            }, 1000);
+            notification.info({
+                message: 'Redirecting to home page in 1 second',
+            });
+        } catch (error) {
+            notification.error({
+                message: 'Failed to process profiles',
+                description: error.message
+            });
+        }
     };
 
     const buttonContainerStyle = {
