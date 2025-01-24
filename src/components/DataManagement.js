@@ -68,8 +68,23 @@ const DataManagement = () => {
 
     const handleClearAll = async () => {
         try {
+            // Clear IndexedDB data
             await clearFollowers();
             await clearUnfollowers();
+
+            // Clear localStorage data
+            localStorage.removeItem('followerProfiles');
+            localStorage.removeItem('followingProfiles');
+            localStorage.removeItem('allProfiles');
+            localStorage.removeItem('unfollowerProfiles');
+            localStorage.removeItem('followbackProfiles');
+            localStorage.removeItem('mutualProfiles');
+            localStorage.removeItem('followerUsernames');
+            localStorage.removeItem('followingUsernames');
+            localStorage.removeItem('lastUpdateAt');
+
+            // Force reload to ensure all components are updated
+            window.location.reload();
         } catch (err) {
             setError(err.message);
         }
