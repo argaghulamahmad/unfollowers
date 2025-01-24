@@ -7,6 +7,8 @@ import {
     followingJsonFileName,
 } from '../consts';
 import {fetchGist, updateGist} from "../utils/githubUtils";
+import { useIndexedDB } from '../hooks/useIndexedDB';
+import { STORES } from '../utils/indexedDBUtils';
 
 const {Dragger} = Upload;
 class Profile {
@@ -22,6 +24,9 @@ const Sync = () => {
     const [lastUpdateAt, setLastUpdateAt] = useState(
         JSON.parse(localStorage.getItem('lastUpdateAt'))
     );
+
+    const { saveItem: saveFollower, clearAll: clearFollowers } = useIndexedDB(STORES.FOLLOWERS);
+    const { saveItem: saveUnfollower, clearAll: clearUnfollowers } = useIndexedDB(STORES.UNFOLLOWERS);
 
     useEffect(() => {
         localStorage.setItem('gistId', gistId);
@@ -74,7 +79,6 @@ const Sync = () => {
         }
     };
 
-
     const recomputeData = async allProfiles => {
         try {
             // Get the required data
@@ -96,10 +100,31 @@ const Sync = () => {
                 throw new Error(processedData.error);
             }
 
-            // Store all the processed data
-            Object.entries(processedData).forEach(([key, value]) => {
+            // Clear existing data in IndexedDB
+            await clearFollowers();
+            await clearUnfollowers();
+
+            // Store all the processed data in localStorage and IndexedDB
+            for (const [key, value] of Object.entries(processedData)) {
                 localStorage.setItem(key, JSON.stringify(value));
-            });
+
+                // Save to IndexedDB if it's followers or unfollowers
+                if (key === 'followerProfiles') {
+                    for (const profile of value) {
+                        await saveFollower({
+                            id: profile.username,
+                            ...profile
+                        });
+                    }
+                } else if (key === 'unfollowerProfiles') {
+                    for (const profile of value) {
+                        await saveUnfollower({
+                            id: profile.username,
+                            ...profile
+                        });
+                    }
+                }
+            }
 
             // Update last update timestamp
             setLastUpdateAt(processedData.lastUpdateAt);
