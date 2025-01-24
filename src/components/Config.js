@@ -1,36 +1,84 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Divider, Form, InputNumber, Space } from 'antd';
 import { notification } from 'antd';
+import { putData, getDataById, clearStore, STORES } from '../utils/indexedDBUtils';
 
-const initialValues = {
-    feelLuckyGeneratorCounts: localStorage.getItem('config')
-        ? JSON.parse(localStorage.getItem('config')).feelLuckyGeneratorCounts
-        : 5,
-};
+const CONFIG_ID = 'main';
+const VISITED_PROFILES_ID = 'visitedRandomUsernames';
 
 const Config = () => {
-    const onFinish = (configValues) => {
-        localStorage.setItem('config', JSON.stringify(configValues));
-        notification.success({
-            message: 'Success',
-            description: 'Config updated!',
-        });
+    const [initialValues, setInitialValues] = useState({
+        feelLuckyGeneratorCounts: 5,
+    });
+
+    useEffect(() => {
+        const loadConfig = async () => {
+            try {
+                const config = await getDataById(STORES.CONFIG, CONFIG_ID);
+                if (config) {
+                    setInitialValues({
+                        feelLuckyGeneratorCounts: config.feelLuckyGeneratorCounts,
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading config:', error);
+            }
+        };
+        loadConfig();
+    }, []);
+
+    const onFinish = async (configValues) => {
+        try {
+            await putData(STORES.CONFIG, {
+                id: CONFIG_ID,
+                ...configValues,
+            });
+            notification.success({
+                message: 'Success',
+                description: 'Config updated!',
+            });
+        } catch (error) {
+            notification.error({
+                message: 'Error',
+                description: 'Failed to update config',
+            });
+        }
     };
 
-    const handleResetRandomUsernames = () => {
-        localStorage.removeItem('visitedRandomUsernames');
-        notification.success({
-            message: 'Success',
-            description: 'Visited Random Profiles data has been reset!',
-        });
+    const handleResetRandomUsernames = async () => {
+        try {
+            await putData(STORES.CONFIG, {
+                id: VISITED_PROFILES_ID,
+                profiles: [],
+            });
+            notification.success({
+                message: 'Success',
+                description: 'Visited Random Profiles data has been reset!',
+            });
+        } catch (error) {
+            notification.error({
+                message: 'Error',
+                description: 'Failed to reset visited profiles',
+            });
+        }
     };
 
-    const handleResetAllData = () => {
-        localStorage.clear();
-        notification.success({
-            message: 'Success',
-            description: 'All data cleared!',
-        });
+    const handleResetAllData = async () => {
+        try {
+            await clearStore(STORES.FOLLOWERS);
+            await clearStore(STORES.UNFOLLOWERS);
+            await clearStore(STORES.CONFIG);
+            await clearStore(STORES.PROFILES);
+            notification.success({
+                message: 'Success',
+                description: 'All data cleared!',
+            });
+        } catch (error) {
+            notification.error({
+                message: 'Error',
+                description: 'Failed to clear all data',
+            });
+        }
     };
 
     return (

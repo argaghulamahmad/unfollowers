@@ -1,8 +1,8 @@
 import React, { useRef, useState } from 'react';
 import { Card, Upload, Button, Space, Progress, Alert } from 'antd';
-import { UploadOutlined, DeleteOutlined, SyncOutlined } from '@ant-design/icons';
+import { UploadOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useIndexedDB } from '../hooks/useIndexedDB';
-import { STORES } from '../utils/indexedDBUtils';
+import { STORES, clearStore } from '../utils/indexedDBUtils';
 
 const DataManagement = () => {
     const [importProgress, setImportProgress] = useState(0);
@@ -68,20 +68,11 @@ const DataManagement = () => {
 
     const handleClearAll = async () => {
         try {
-            // Clear IndexedDB data
-            await clearFollowers();
-            await clearUnfollowers();
-
-            // Clear localStorage data
-            localStorage.removeItem('followerProfiles');
-            localStorage.removeItem('followingProfiles');
-            localStorage.removeItem('allProfiles');
-            localStorage.removeItem('unfollowerProfiles');
-            localStorage.removeItem('followbackProfiles');
-            localStorage.removeItem('mutualProfiles');
-            localStorage.removeItem('followerUsernames');
-            localStorage.removeItem('followingUsernames');
-            localStorage.removeItem('lastUpdateAt');
+            // Clear all IndexedDB stores
+            await clearStore(STORES.FOLLOWERS);
+            await clearStore(STORES.UNFOLLOWERS);
+            await clearStore(STORES.CONFIG);
+            await clearStore(STORES.PROFILES);
 
             // Force reload to ensure all components are updated
             window.location.reload();
