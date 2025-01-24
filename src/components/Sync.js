@@ -1,12 +1,11 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {InboxOutlined} from '@ant-design/icons';
-import {Upload, notification, Button, Divider, Space, List, Collapse, Empty, Input} from 'antd';
+import {Upload, notification, Button, Divider, Space} from 'antd';
 import {
     acceptedUploadedFilenames,
     followersJsonFileName,
     followingJsonFileName,
 } from '../consts';
-import {fetchGist, updateGist} from "../utils/githubUtils";
 import { useIndexedDB } from '../hooks/useIndexedDB';
 import { STORES } from '../utils/indexedDBUtils';
 
@@ -20,96 +19,18 @@ class Profile {
 }
 
 const Sync = () => {
-    const [gistId, setGistId] = useState('');
-    const [githubToken, setGithubToken] = useState('');
-    const [lastUpdateAt, setLastUpdateAt] = useState(null);
     const [uploadedFiles, setUploadedFiles] = useState(new Set());
 
     const { saveItem: saveFollower, clearAll: clearFollowers } = useIndexedDB(STORES.FOLLOWERS);
     const { saveItem: saveUnfollower, clearAll: clearUnfollowers } = useIndexedDB(STORES.UNFOLLOWERS);
-    const { saveItem: saveConfig } = useIndexedDB(STORES.CONFIG);
+    const { saveItem: saveConfig, data: configData } = useIndexedDB(STORES.CONFIG);
     const { saveItem: saveProfile, clearAll: clearProfiles } = useIndexedDB(STORES.PROFILES);
-    const { data: config } = useIndexedDB(STORES.CONFIG);
     const { data: allProfiles = [] } = useIndexedDB(STORES.PROFILES);
     const { data: followers = [] } = useIndexedDB(STORES.FOLLOWERS);
     const { data: unfollowers = [] } = useIndexedDB(STORES.UNFOLLOWERS);
 
-    useEffect(() => {
-        // Load config from IndexedDB
-        const gistIdConfig = config.find(c => c.key === 'gistId');
-        const githubTokenConfig = config.find(c => c.key === 'githubToken');
-        const lastUpdateConfig = config.find(c => c.key === 'lastUpdateAt');
-
-        if (gistIdConfig) setGistId(gistIdConfig.value);
-        if (githubTokenConfig) setGithubToken(githubTokenConfig.value);
-        if (lastUpdateConfig) setLastUpdateAt(lastUpdateConfig.value);
-    }, [config]);
-
-    useEffect(() => {
-        // Save config to IndexedDB
-        if (gistId) saveConfig({ key: 'gistId', value: gistId, id: 'gistId' });
-        if (githubToken) saveConfig({ key: 'githubToken', value: githubToken, id: 'githubToken' });
-    }, [gistId, githubToken, saveConfig]);
-
-    const handleFetchGist = async () => {
-        try {
-            const followingsProfile = await fetchGist(gistId, githubToken, 'followings.json');
-            const followersProfile = await fetchGist(gistId, githubToken, 'followers.json');
-            const allProfilesData = await fetchGist(gistId, githubToken, 'allProfiles.json');
-            const unfollowerProfiles = await fetchGist(gistId, githubToken, 'unfollowers.json');
-            const followbackProfiles = await fetchGist(gistId, githubToken, 'followbacks.json');
-            const mutualProfiles = await fetchGist(gistId, githubToken, 'mutuals.json');
-
-            // Save all profiles to IndexedDB
-            await Promise.all([
-                ...followingsProfile.map(p => saveProfile(p)),
-                ...followersProfile.map(p => saveProfile(p)),
-                ...allProfilesData.map(p => saveProfile(p)),
-                ...unfollowerProfiles.map(p => saveProfile(p)),
-                ...followbackProfiles.map(p => saveProfile(p)),
-                ...mutualProfiles.map(p => saveProfile(p))
-            ]);
-
-            notification.success({
-                message: 'Gist data fetched successfully',
-                description: 'All profile data has been imported'
-            });
-        } catch (error) {
-            notification.error({
-                message: 'Failed to fetch Gist',
-                description: error.message
-            });
-        }
-    };
-
-    const handleUpdateGist = async () => {
-        try {
-            // Prepare data for Gist using the data from hooks
-            const gistData = {
-                'followers.json': JSON.stringify(followers),
-                'followings.json': JSON.stringify(allProfiles.filter(p => !followers.find(f => f.id === p.id))),
-                'allProfiles.json': JSON.stringify(allProfiles),
-                'unfollowers.json': JSON.stringify(unfollowers)
-            };
-
-            // Execute all updates in parallel
-            await Promise.all(
-                Object.entries(gistData).map(([filename, content]) =>
-                    updateGist(gistId, githubToken, filename, content)
-                )
-            );
-
-            notification.success({
-                message: 'Gist updated successfully',
-                description: 'All profile data has been synced to GitHub Gist'
-            });
-        } catch (error) {
-            notification.error({
-                message: 'Failed to update Gist',
-                description: error.message
-            });
-        }
-    };
+    // Get config values from IndexedDB
+    const lastUpdateAt = configData.find(c => c.id === 'lastUpdateAt')?.value || null;
 
     const recomputeData = async allProfiles => {
         try {
@@ -160,7 +81,6 @@ const Sync = () => {
             // Update last update timestamp
             const timestamp = Date.now();
             await saveConfig({ key: 'lastUpdateAt', value: timestamp, id: 'lastUpdateAt' });
-            setLastUpdateAt(timestamp);
 
             // Clear uploaded files tracking
             setUploadedFiles(new Set());
@@ -298,39 +218,6 @@ const Sync = () => {
                             Upload the JSON files from your Instagram data download
                         </p>
                     </Dragger>
-                </Space>
-            </div>
-            <div>
-                <Divider orientation="left">Gist Credentials</Divider>
-                <Space direction="vertical" size="middle" style={{display: 'flex'}}>
-                    <div>
-                        <label>Gist ID:</label>
-                        <Input
-                            placeholder="Enter Gist ID"
-                            value={gistId}
-                            onChange={(e) => setGistId(e.target.value)}
-                        />
-                    </div>
-                    <div>
-                        <label>GitHub Token:</label>
-                        <Input
-                            placeholder="Enter GitHub Token"
-                            value={githubToken}
-                            onChange={(e) => setGithubToken(e.target.value)}
-                        />
-                    </div>
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        marginTop: '20px',
-                    }}>
-                        <Button style={{margin: '0 10px'}} type="primary" onClick={handleUpdateGist}>
-                            Update Gist
-                        </Button>
-                        <Button style={{margin: '0 10px'}} type="primary" onClick={handleFetchGist}>
-                            Fetch Gist
-                        </Button>
-                    </div>
                 </Space>
             </div>
         </div>
