@@ -1,3 +1,5 @@
+let wasmInstance = null;
+
 // Load the Go WASM executor
 const initGoWasm = async () => {
     if (!window.Go) {
@@ -14,6 +16,10 @@ const initGoWasm = async () => {
 };
 
 export const initWasm = async () => {
+    if (wasmInstance) {
+        return true;
+    }
+
     await initGoWasm();
     const go = new window.Go();
 
@@ -22,10 +28,14 @@ export const initWasm = async () => {
             fetch('/main.wasm'),
             go.importObject
         );
-        go.run(result.instance);
+        wasmInstance = result.instance;
+        go.run(wasmInstance);
         return true;
     } catch (error) {
-        console.error('Failed to initialize WASM:', error);
-        throw error;
+        throw new Error(`Failed to initialize WASM: ${error.message}`);
     }
+};
+
+export const resetWasmInstance = () => {
+    wasmInstance = null;
 };

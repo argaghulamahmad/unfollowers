@@ -9,16 +9,19 @@ const STORES = {
     PROFILES: 'profiles'
 };
 
+const handleDBError = (error, operation) => {
+    const message = `Failed to ${operation}`;
+    console.error(message, error);
+    openNotification('error', message);
+    throw error;
+};
+
 // Initialize database
 export const initDB = () => {
     return new Promise((resolve, reject) => {
         const request = indexedDB.open(DB_NAME, DB_VERSION);
 
-        request.onerror = (event) => {
-            console.error('Database error:', event.target.error);
-            openNotification('error', 'Failed to open database');
-            reject(event.target.error);
-        };
+        request.onerror = (event) => handleDBError(event.target.error, 'open database');
 
         request.onsuccess = (event) => {
             const db = event.target.result;
@@ -27,20 +30,11 @@ export const initDB = () => {
 
         request.onupgradeneeded = (event) => {
             const db = event.target.result;
-
-            // Create object stores if they don't exist
-            if (!db.objectStoreNames.contains(STORES.FOLLOWERS)) {
-                db.createObjectStore(STORES.FOLLOWERS, { keyPath: 'id' });
-            }
-            if (!db.objectStoreNames.contains(STORES.UNFOLLOWERS)) {
-                db.createObjectStore(STORES.UNFOLLOWERS, { keyPath: 'id' });
-            }
-            if (!db.objectStoreNames.contains(STORES.CONFIG)) {
-                db.createObjectStore(STORES.CONFIG, { keyPath: 'id' });
-            }
-            if (!db.objectStoreNames.contains(STORES.PROFILES)) {
-                db.createObjectStore(STORES.PROFILES, { keyPath: 'id' });
-            }
+            Object.values(STORES).forEach(storeName => {
+                if (!db.objectStoreNames.contains(storeName)) {
+                    db.createObjectStore(storeName, { keyPath: 'id' });
+                }
+            });
         };
     });
 };
@@ -55,15 +49,33 @@ export const putData = async (storeName, data) => {
             const request = store.put(data);
 
             request.onsuccess = () => resolve(request.result);
-            request.onerror = () => {
-                console.error('Error saving data:', request.error);
-                openNotification('error', 'Failed to save data');
-                reject(request.error);
-            };
+            request.onerror = () => handleDBError(request.error, 'save data');
         });
     } catch (error) {
-        console.error('Database operation failed:', error);
-        throw error;
+        handleDBError(error, 'perform database operation');
+    }
+};
+
+// Batch add/update operation
+export const putBatchData = async (storeName, items) => {
+    try {
+        const db = await initDB();
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(storeName, 'readwrite');
+            const store = transaction.objectStore(storeName);
+
+            const results = [];
+            items.forEach(item => {
+                const request = store.put(item);
+                request.onsuccess = () => results.push(request.result);
+                request.onerror = () => handleDBError(request.error, 'save batch data');
+            });
+
+            transaction.oncomplete = () => resolve(results);
+            transaction.onerror = () => handleDBError(transaction.error, 'complete batch operation');
+        });
+    } catch (error) {
+        handleDBError(error, 'perform batch operation');
     }
 };
 
@@ -77,15 +89,10 @@ export const getAllData = async (storeName) => {
             const request = store.getAll();
 
             request.onsuccess = () => resolve(request.result);
-            request.onerror = () => {
-                console.error('Error fetching data:', request.error);
-                openNotification('error', 'Failed to fetch data');
-                reject(request.error);
-            };
+            request.onerror = () => handleDBError(request.error, 'fetch data');
         });
     } catch (error) {
-        console.error('Database operation failed:', error);
-        throw error;
+        handleDBError(error, 'perform database operation');
     }
 };
 
@@ -99,15 +106,10 @@ export const getDataById = async (storeName, id) => {
             const request = store.get(id);
 
             request.onsuccess = () => resolve(request.result);
-            request.onerror = () => {
-                console.error('Error fetching data:', request.error);
-                openNotification('error', 'Failed to fetch data');
-                reject(request.error);
-            };
+            request.onerror = () => handleDBError(request.error, 'fetch data by ID');
         });
     } catch (error) {
-        console.error('Database operation failed:', error);
-        throw error;
+        handleDBError(error, 'perform database operation');
     }
 };
 
@@ -121,19 +123,14 @@ export const deleteData = async (storeName, id) => {
             const request = store.delete(id);
 
             request.onsuccess = () => resolve(true);
-            request.onerror = () => {
-                console.error('Error deleting data:', request.error);
-                openNotification('error', 'Failed to delete data');
-                reject(request.error);
-            };
+            request.onerror = () => handleDBError(request.error, 'delete data');
         });
     } catch (error) {
-        console.error('Database operation failed:', error);
-        throw error;
+        handleDBError(error, 'perform database operation');
     }
 };
 
-// Clear all data in a store
+// Clear store operation
 export const clearStore = async (storeName) => {
     try {
         const db = await initDB();
@@ -143,15 +140,10 @@ export const clearStore = async (storeName) => {
             const request = store.clear();
 
             request.onsuccess = () => resolve(true);
-            request.onerror = () => {
-                console.error('Error clearing store:', request.error);
-                openNotification('error', 'Failed to clear data');
-                reject(request.error);
-            };
+            request.onerror = () => handleDBError(request.error, 'clear store');
         });
     } catch (error) {
-        console.error('Database operation failed:', error);
-        throw error;
+        handleDBError(error, 'perform database operation');
     }
 };
 
