@@ -124,32 +124,36 @@ func processProfiles(this js.Value, args []js.Value) interface{} {
 		profileMap[profile.Username] = profile
 	}
 
-	// Create sets for O(1) lookups
-	followerSet := make(map[string]bool)
-	followingSet := make(map[string]bool)
-	for _, username := range followerUsernames {
-		followerSet[username] = true
-	}
-	for _, username := range followingUsernames {
-		followingSet[username] = true
+	// Convert usernames to User structs
+	followers := make([]User, len(followerUsernames))
+	for i, username := range followerUsernames {
+		followers[i] = User{Username: username}
 	}
 
-	// Compute relationships
-	var followbackUsernames []string
-	var unfollowerUsernames []string
-	var mutualUsernames []string
-
-	for username := range followerSet {
-		if !followingSet[username] {
-			followbackUsernames = append(followbackUsernames, username)
-		}
+	followings := make([]User, len(followingUsernames))
+	for i, username := range followingUsernames {
+		followings[i] = User{Username: username}
 	}
-	for username := range followingSet {
-		if !followerSet[username] {
-			unfollowerUsernames = append(unfollowerUsernames, username)
-		} else {
-			mutualUsernames = append(mutualUsernames, username)
-		}
+
+	// Use helper functions to compute relationships
+	mutuals := FetchMutualFollowers(followings, followers)
+	unfollowers := FetchUnfollowers(followings, followers)
+	followbacks := FetchFollowbacks(followings, followers)
+
+	// Extract usernames
+	mutualUsernames := make([]string, len(mutuals))
+	for i, user := range mutuals {
+		mutualUsernames[i] = user.Username
+	}
+
+	unfollowerUsernames := make([]string, len(unfollowers))
+	for i, user := range unfollowers {
+		unfollowerUsernames[i] = user.Username
+	}
+
+	followbackUsernames := make([]string, len(followbacks))
+	for i, user := range followbacks {
+		followbackUsernames[i] = user.Username
 	}
 
 	// Create profile collections
@@ -166,9 +170,9 @@ func processProfiles(this js.Value, args []js.Value) interface{} {
 		return profiles
 	}
 
-	followbackProfiles := createProfiles(followbackUsernames, false)
-	unfollowerProfiles := createProfiles(unfollowerUsernames, true)
 	mutualProfiles := createProfiles(mutualUsernames, false)
+	unfollowerProfiles := createProfiles(unfollowerUsernames, true)
+	followbackProfiles := createProfiles(followbackUsernames, false)
 
 	// Prepare result
 	result := ProcessedData{
