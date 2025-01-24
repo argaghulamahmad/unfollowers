@@ -1,11 +1,12 @@
 import { openNotification } from './notificationUtils';
 
 const DB_NAME = 'unfollowersDB';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORES = {
     FOLLOWERS: 'followers',
     UNFOLLOWERS: 'unfollowers',
-    CONFIG: 'config'
+    CONFIG: 'config',
+    PROFILES: 'profiles'
 };
 
 // Initialize database
@@ -35,7 +36,10 @@ export const initDB = () => {
                 db.createObjectStore(STORES.UNFOLLOWERS, { keyPath: 'id' });
             }
             if (!db.objectStoreNames.contains(STORES.CONFIG)) {
-                db.createObjectStore(STORES.CONFIG, { keyPath: 'key' });
+                db.createObjectStore(STORES.CONFIG, { keyPath: 'id' });
+            }
+            if (!db.objectStoreNames.contains(STORES.PROFILES)) {
+                db.createObjectStore(STORES.PROFILES, { keyPath: 'id' });
             }
         };
     });

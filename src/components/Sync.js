@@ -15,52 +15,84 @@ class Profile {
     constructor(username, connectedAt) {
         this.username = username;
         this.connectedAt = connectedAt;
+        this.id = username; // Required for IndexedDB
     }
 }
 
 const Sync = () => {
-    const [gistId, setGistId] = useState(localStorage.getItem('gistId'));
-    const [githubToken, setGithubToken] = useState(localStorage.getItem('githubToken'));
-    const [lastUpdateAt, setLastUpdateAt] = useState(
-        JSON.parse(localStorage.getItem('lastUpdateAt'))
-    );
+    const [gistId, setGistId] = useState('');
+    const [githubToken, setGithubToken] = useState('');
+    const [lastUpdateAt, setLastUpdateAt] = useState(null);
+    const [uploadedFiles, setUploadedFiles] = useState(new Set());
 
     const { saveItem: saveFollower, clearAll: clearFollowers } = useIndexedDB(STORES.FOLLOWERS);
     const { saveItem: saveUnfollower, clearAll: clearUnfollowers } = useIndexedDB(STORES.UNFOLLOWERS);
+    const { saveItem: saveConfig } = useIndexedDB(STORES.CONFIG);
+    const { saveItem: saveProfile, clearAll: clearProfiles } = useIndexedDB(STORES.PROFILES);
+    const { data: config } = useIndexedDB(STORES.CONFIG);
+    const { data: allProfiles = [] } = useIndexedDB(STORES.PROFILES);
+    const { data: followers = [] } = useIndexedDB(STORES.FOLLOWERS);
+    const { data: unfollowers = [] } = useIndexedDB(STORES.UNFOLLOWERS);
 
     useEffect(() => {
-        localStorage.setItem('gistId', gistId);
-        localStorage.setItem('githubToken', githubToken);
-    }, [gistId, githubToken]);
+        // Load config from IndexedDB
+        const gistIdConfig = config.find(c => c.key === 'gistId');
+        const githubTokenConfig = config.find(c => c.key === 'githubToken');
+        const lastUpdateConfig = config.find(c => c.key === 'lastUpdateAt');
 
-    const handleFetchGist = () => {
-        const followingsProfile = fetchGist(gistId, githubToken, 'followings.json');
-        const followersProfile = fetchGist(gistId, githubToken, 'followers.json');
-        const allProfiles = fetchGist(gistId, githubToken, 'allProfiles.json');
-        const unfollowerProfiles = fetchGist(gistId, githubToken, 'unfollowers.json');
-        const followbackProfiles = fetchGist(gistId, githubToken, 'followbacks.json');
-        const mutualProfiles = fetchGist(gistId, githubToken, 'mutuals.json');
-        localStorage.setItem('followingsProfile', JSON.stringify(followingsProfile));
-        localStorage.setItem('followersProfile', JSON.stringify(followersProfile));
-        localStorage.setItem('allProfiles', JSON.stringify(allProfiles));
-        localStorage.setItem('unfollowerProfiles', JSON.stringify(unfollowerProfiles));
-        localStorage.setItem('followbackProfiles', JSON.stringify(followbackProfiles));
-        localStorage.setItem('mutualProfiles', JSON.stringify(mutualProfiles));
+        if (gistIdConfig) setGistId(gistIdConfig.value);
+        if (githubTokenConfig) setGithubToken(githubTokenConfig.value);
+        if (lastUpdateConfig) setLastUpdateAt(lastUpdateConfig.value);
+    }, [config]);
+
+    useEffect(() => {
+        // Save config to IndexedDB
+        if (gistId) saveConfig({ key: 'gistId', value: gistId, id: 'gistId' });
+        if (githubToken) saveConfig({ key: 'githubToken', value: githubToken, id: 'githubToken' });
+    }, [gistId, githubToken, saveConfig]);
+
+    const handleFetchGist = async () => {
+        try {
+            const followingsProfile = await fetchGist(gistId, githubToken, 'followings.json');
+            const followersProfile = await fetchGist(gistId, githubToken, 'followers.json');
+            const allProfilesData = await fetchGist(gistId, githubToken, 'allProfiles.json');
+            const unfollowerProfiles = await fetchGist(gistId, githubToken, 'unfollowers.json');
+            const followbackProfiles = await fetchGist(gistId, githubToken, 'followbacks.json');
+            const mutualProfiles = await fetchGist(gistId, githubToken, 'mutuals.json');
+
+            // Save all profiles to IndexedDB
+            await Promise.all([
+                ...followingsProfile.map(p => saveProfile(p)),
+                ...followersProfile.map(p => saveProfile(p)),
+                ...allProfilesData.map(p => saveProfile(p)),
+                ...unfollowerProfiles.map(p => saveProfile(p)),
+                ...followbackProfiles.map(p => saveProfile(p)),
+                ...mutualProfiles.map(p => saveProfile(p))
+            ]);
+
+            notification.success({
+                message: 'Gist data fetched successfully',
+                description: 'All profile data has been imported'
+            });
+        } catch (error) {
+            notification.error({
+                message: 'Failed to fetch Gist',
+                description: error.message
+            });
+        }
     };
 
     const handleUpdateGist = async () => {
         try {
-            // Batch fetch all required data
+            // Prepare data for Gist using the data from hooks
             const gistData = {
-                'followers.json': localStorage.getItem('followerProfiles'),
-                'followings.json': localStorage.getItem('followingProfiles'),
-                'allProfiles.json': localStorage.getItem('allProfiles'),
-                'unfollowers.json': localStorage.getItem('unfollowerProfiles'),
-                'followbacks.json': localStorage.getItem('followbackProfiles'),
-                'mutuals.json': localStorage.getItem('mutualProfiles')
+                'followers.json': JSON.stringify(followers),
+                'followings.json': JSON.stringify(allProfiles.filter(p => !followers.find(f => f.id === p.id))),
+                'allProfiles.json': JSON.stringify(allProfiles),
+                'unfollowers.json': JSON.stringify(unfollowers)
             };
 
-            // Execute all updates in parallel for better performance
+            // Execute all updates in parallel
             await Promise.all(
                 Object.entries(gistData).map(([filename, content]) =>
                     updateGist(gistId, githubToken, filename, content)
@@ -81,9 +113,17 @@ const Sync = () => {
 
     const recomputeData = async allProfiles => {
         try {
-            // Get the required data
-            const followerUsernames = JSON.parse(localStorage.getItem('followerUsernames')) || [];
-            const followingUsernames = JSON.parse(localStorage.getItem('followingUsernames')) || [];
+            // Clear existing data
+            await clearFollowers();
+            await clearUnfollowers();
+
+            // Get follower and following usernames from profiles
+            const followerUsernames = allProfiles
+                .filter(p => p.type === 'follower')
+                .map(p => p.username);
+            const followingUsernames = allProfiles
+                .filter(p => p.type === 'following')
+                .map(p => p.username);
 
             // Call WASM module for heavy computations
             const result = await window.processProfiles(
@@ -100,34 +140,19 @@ const Sync = () => {
                 throw new Error(processedData.error);
             }
 
-            // Clear existing data in IndexedDB
-            await clearFollowers();
-            await clearUnfollowers();
-
-            // Store all the processed data in localStorage and IndexedDB
-            for (const [key, value] of Object.entries(processedData)) {
-                localStorage.setItem(key, JSON.stringify(value));
-
-                // Save to IndexedDB if it's followers or unfollowers
-                if (key === 'followerProfiles') {
-                    for (const profile of value) {
-                        await saveFollower({
-                            id: profile.username,
-                            ...profile
-                        });
-                    }
-                } else if (key === 'unfollowerProfiles') {
-                    for (const profile of value) {
-                        await saveUnfollower({
-                            id: profile.username,
-                            ...profile
-                        });
-                    }
-                }
-            }
+            // Save processed data to IndexedDB
+            await Promise.all([
+                ...processedData.followerProfiles.map(p => saveFollower(p)),
+                ...processedData.unfollowerProfiles.map(p => saveUnfollower(p))
+            ]);
 
             // Update last update timestamp
-            setLastUpdateAt(processedData.lastUpdateAt);
+            const timestamp = Date.now();
+            await saveConfig({ key: 'lastUpdateAt', value: timestamp, id: 'lastUpdateAt' });
+            setLastUpdateAt(timestamp);
+
+            // Clear uploaded files tracking
+            setUploadedFiles(new Set());
 
             // Redirect after processing is complete
             setTimeout(() => {
@@ -144,98 +169,74 @@ const Sync = () => {
         }
     };
 
-    const buttonContainerStyle = {
-        display: 'flex',
-        justifyContent: 'center',
-        marginTop: '20px',
-    };
-
-    const buttonStyle = {
-        margin: '0 10px 0 10px',
-    };
-
-    const handleUpload = (file) => {
-        const reader = new FileReader();
-        reader.readAsText(file, 'UTF-8');
-
-        if (acceptedUploadedFilenames.includes(file.name)) {
-            reader.onload = (evt) => {
-                const result = evt.target.result;
-                const storedAllProfiles = JSON.parse(localStorage.getItem('allProfiles')) || [];
-                const allProfiles = [...storedAllProfiles];
-
-                switch (file.name) {
-                    case followersJsonFileName:
-                        const followersJsonParsedResult = JSON.parse(result);
-                        const followerProfiles = followersJsonParsedResult.map((item) => {
-                            const data = item.string_list_data[0];
-                            const {value: username} = data;
-                            // Convert timestamp to milliseconds for consistency
-                            const connectedAt = data.timestamp * 1000;
-                            return new Profile(username, connectedAt);
-                        });
-
-                        localStorage.setItem('followerProfiles', JSON.stringify(followerProfiles));
-                        allProfiles.push(...followerProfiles);
-
-                        localStorage.setItem(
-                            'followerUsernames',
-                            JSON.stringify(
-                                followersJsonParsedResult.map((item) => item.string_list_data[0].value)
-                            )
-                        );
-
-                        notification.success({
-                            message: 'File followers.json valid',
-                            description: 'Followers record updated!',
-                        });
-                        break;
-
-                    case followingJsonFileName:
-                        const followingJsonParsedResult = JSON.parse(result);
-                        const followingProfiles = followingJsonParsedResult.map((item) => {
-                            const data = item.string_list_data[0];
-                            const {value: username} = data;
-                            // Convert timestamp to milliseconds for consistency
-                            const connectedAt = data.timestamp * 1000;
-                            return new Profile(username, connectedAt);
-                        });
-
-                        localStorage.setItem('followingProfiles', JSON.stringify(followingProfiles));
-                        allProfiles.push(...followingProfiles);
-
-                        localStorage.setItem(
-                            'followingUsernames',
-                            JSON.stringify(
-                                followingJsonParsedResult.map((item) => item.string_list_data[0].value)
-                            )
-                        );
-
-                        notification.success({
-                            message: 'File following.json valid',
-                            description: 'Following record updated!',
-                        });
-                        break;
-
-                    default:
-                        notification.error({
-                            message: 'Not a valid json file',
-                        });
-                        break;
-                }
-
-                recomputeData(allProfiles);
-            };
-
-            reader.onerror = () => {
-                notification.error({
-                    message: 'Not a valid json file',
-                });
-            };
-        } else {
+    const handleUpload = async (file) => {
+        if (!acceptedUploadedFilenames.includes(file.name)) {
             notification.error({
-                message: 'Please drop following and followers json file',
+                message: 'Invalid file',
+                description: 'Please upload followers.json or following.json files'
             });
+            return false;
+        }
+
+        try {
+            const result = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (evt) => resolve(evt.target.result);
+                reader.onerror = (error) => reject(error);
+                reader.readAsText(file, 'UTF-8');
+            });
+
+            const parsedResult = JSON.parse(result);
+            const profiles = parsedResult.map((item) => {
+                const data = item.string_list_data[0];
+                const {value: username} = data;
+                const connectedAt = data.timestamp * 1000;
+                return new Profile(username, connectedAt);
+            });
+
+            // Remove existing profiles of this type
+            const isFollowerFile = file.name === followersJsonFileName;
+            const updatedProfiles = allProfiles.filter(p =>
+                isFollowerFile ? p.type !== 'follower' : p.type !== 'following'
+            );
+
+            // Save new profiles
+            await Promise.all(
+                profiles.map(p => saveProfile({
+                    ...p,
+                    type: isFollowerFile ? 'follower' : 'following',
+                    id: p.username
+                }))
+            );
+
+            // Add file to uploaded files set
+            const newUploadedFiles = new Set(uploadedFiles);
+            newUploadedFiles.add(file.name);
+            setUploadedFiles(newUploadedFiles);
+
+            notification.success({
+                message: `File ${file.name} processed`,
+                description: `${profiles.length} profiles updated!`,
+            });
+
+            // Only recompute data when both files are uploaded
+            if (newUploadedFiles.size === 2) {
+                const allUpdatedProfiles = [...updatedProfiles, ...profiles];
+                await recomputeData(allUpdatedProfiles);
+            } else {
+                notification.info({
+                    message: 'Upload remaining file',
+                    description: `Please upload ${isFollowerFile ? 'following.json' : 'followers.json'} to complete the process.`
+                });
+            }
+
+            return false; // Prevent default upload
+        } catch (error) {
+            notification.error({
+                message: 'Error processing file',
+                description: error.message
+            });
+            return false;
         }
     };
 
@@ -272,12 +273,8 @@ const Sync = () => {
                     </Button>
 
                     <Dragger
-                        name="file"
                         multiple={true}
-                        beforeUpload={(file) => {
-                            handleUpload(file);
-                            return false; // Prevent default upload behavior
-                        }}
+                        beforeUpload={handleUpload}
                         accept=".json"
                         showUploadList={false}
                     >
@@ -310,11 +307,15 @@ const Sync = () => {
                             onChange={(e) => setGithubToken(e.target.value)}
                         />
                     </div>
-                    <div style={buttonContainerStyle}>
-                        <Button style={buttonStyle} type="primary" block onClick={handleUpdateGist}>
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        marginTop: '20px',
+                    }}>
+                        <Button style={{margin: '0 10px'}} type="primary" onClick={handleUpdateGist}>
                             Update Gist
                         </Button>
-                        <Button style={buttonStyle} type="primary" block onClick={handleFetchGist}>
+                        <Button style={{margin: '0 10px'}} type="primary" onClick={handleFetchGist}>
                             Fetch Gist
                         </Button>
                     </div>
