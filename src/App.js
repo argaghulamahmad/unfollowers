@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Layout, message } from 'antd';
 import Sync from './components/Sync';
 import Stats from './components/Stats';
@@ -23,13 +23,13 @@ const App = () => {
         <Router>
             <Layout>
                 <Content style={{ padding: '50px' }}>
-                    <Routes>
-                        <Route path="/" element={<Stats />} />
-                        <Route path="/sync" element={<Sync />} />
-                        <Route path="/insight" element={<Insight />} />
-                        <Route path="/config" element={<Config />} />
-                        <Route path="/manage" element={<DataManagement />} />
-                    </Routes>
+                    <Switch>
+                        <Route exact path="/" component={Stats} />
+                        <Route path="/sync" component={Sync} />
+                        <Route path="/insight" component={Insight} />
+                        <Route path="/config" component={Config} />
+                        <Route path="/manage" component={DataManagement} />
+                    </Switch>
                 </Content>
             </Layout>
         </Router>
