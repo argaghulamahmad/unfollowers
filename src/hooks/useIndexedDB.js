@@ -28,7 +28,6 @@ export const useIndexedDB = (storeName) => {
             setLoading(true);
             await putData(storeName, item);
             await fetchData(); // Refresh the data
-            openNotification('success', 'Data saved successfully');
         } catch (err) {
             setError(err.message);
             throw err;
@@ -43,7 +42,6 @@ export const useIndexedDB = (storeName) => {
             setLoading(true);
             await deleteData(storeName, id);
             await fetchData(); // Refresh the data
-            openNotification('success', 'Item deleted successfully');
         } catch (err) {
             setError(err.message);
             throw err;
@@ -58,7 +56,6 @@ export const useIndexedDB = (storeName) => {
             setLoading(true);
             await clearStore(storeName);
             setData([]);
-            openNotification('success', 'All data cleared successfully');
         } catch (err) {
             setError(err.message);
             throw err;

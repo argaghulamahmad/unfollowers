@@ -12,6 +12,13 @@ const Insight = () => {
     const { data: followers } = useIndexedDB(STORES.FOLLOWERS);
     const { data: unfollowers } = useIndexedDB(STORES.UNFOLLOWERS);
 
+    console.log('Data loaded from IndexedDB:', {
+        configLength: config?.length,
+        profilesLength: profiles?.length,
+        followersLength: followers?.length,
+        unfollowersLength: unfollowers?.length
+    });
+
     const defaultTypeOfDataThatAsked = config.find(c => c.key === 'typeOfDataThatAsked')?.value || "unfollowers";
     const [typeOfDataThatAsk, setTypeOfDataThatAsk] = useState(defaultTypeOfDataThatAsked);
     const [displayProfiles, setDisplayProfiles] = useState([]);
@@ -75,6 +82,10 @@ const Insight = () => {
             default:
                 console.error('Invalid type of data requested');
         }
+        console.log('Updating displayed profiles:', {
+            type: typeOfDataThatAsk,
+            count: profilesToShow?.length
+        });
         setDisplayProfiles(sortProfiles(profilesToShow, sortConfig));
     }, [typeOfDataThatAsk, profiles, followers, unfollowers, sortConfig, sortProfiles]);
 
@@ -93,6 +104,7 @@ const Insight = () => {
 
     // Only show Sync if no profiles exist
     if (!profiles.length) {
+        console.log('No profiles found, showing Sync component');
         return <Sync/>;
     }
 

@@ -36,11 +36,14 @@ const Sync = () => {
     const hasData = allProfiles.length > 0 || followers.length > 0 || unfollowers.length > 0;
 
     const recomputeData = async allProfiles => {
+        console.log('Starting recomputeData with profiles:', allProfiles.length);
+        console.log('Profile types:', allProfiles.map(p => p.type));
         try {
             // Clear existing data
             await clearFollowers();
             await clearUnfollowers();
             await clearProfiles();
+            console.log('Cleared existing data');
 
             // Get follower and following usernames from profiles
             const followerUsernames = allProfiles
@@ -50,15 +53,28 @@ const Sync = () => {
                 .filter(p => p.type === 'following')
                 .map(p => p.username);
 
+            console.log('Profile counts by type:', {
+                followers: followerUsernames.length,
+                following: followingUsernames.length,
+                total: allProfiles.length
+            });
+
             // Call WASM module for heavy computations
+            console.log('Calling WASM module');
             const result = await window.processProfiles(
                 JSON.stringify(allProfiles),
                 JSON.stringify(followerUsernames),
                 JSON.stringify(followingUsernames)
             );
+            console.log('WASM processing complete');
 
             // Parse the result
             const processedData = JSON.parse(result);
+            console.log('Processed data:', {
+                followerProfilesCount: processedData.followerProfiles?.length,
+                unfollowerProfilesCount: processedData.unfollowerProfiles?.length,
+                mutualProfilesCount: processedData.mutualProfiles?.length
+            });
 
             // Check for errors
             if (processedData.error) {
@@ -72,11 +88,12 @@ const Sync = () => {
                     id: p.username
                 }))
             );
+            console.log('Saved all profiles');
 
             // Save processed data to respective stores
-            await Promise.all([
+            const savePromises = [
                 // Save followers (mutual followers)
-                ...processedData.followerProfiles.map(p => saveFollower({
+                ...processedData.mutualProfiles.map(p => saveFollower({
                     ...p,
                     id: p.username,
                     type: 'mutual',
@@ -90,11 +107,23 @@ const Sync = () => {
                     connectedAt: allProfiles.find(ap => ap.username === p.username)?.connectedAt || Date.now(),
                     unfollowedAt: Date.now()
                 }))
-            ]);
+            ];
+
+            await Promise.all(savePromises);
+            console.log('Saved processed data to stores:', {
+                mutualCount: processedData.mutualProfiles.length,
+                unfollowerCount: processedData.unfollowerProfiles.length
+            });
 
             // Update last update timestamp
             const timestamp = Date.now();
             await saveConfig({ key: 'lastUpdateAt', value: timestamp, id: 'lastUpdateAt' });
+
+            // Show final success notification with stats
+            notification.success({
+                message: 'Processing complete',
+                description: `Found ${processedData.mutualProfiles.length} mutual followers and ${processedData.unfollowerProfiles.length} unfollowers.`,
+            });
 
             // Clear uploaded files tracking
             setUploadedFiles(new Set());
@@ -102,11 +131,13 @@ const Sync = () => {
             // Redirect after processing is complete
             setTimeout(() => {
                 window.location.href = '../';
-            }, 1000);
+            }, 2000);
             notification.info({
-                message: 'Redirecting to home page in 1 second',
+                message: 'Redirecting',
+                description: 'Taking you to the results page...',
             });
         } catch (error) {
+            console.error('Error in recomputeData:', error);
             notification.error({
                 message: 'Failed to process profiles',
                 description: error.message
@@ -115,6 +146,7 @@ const Sync = () => {
     };
 
     const handleUpload = async (file) => {
+        console.log('Starting file upload:', file.name);
         if (!acceptedUploadedFilenames.includes(file.name)) {
             notification.error({
                 message: 'Invalid file',
@@ -131,19 +163,24 @@ const Sync = () => {
                 reader.readAsText(file, 'UTF-8');
             });
 
+            console.log('File read successfully');
             const parsedResult = JSON.parse(result);
+            console.log('File parsed, number of items:', parsedResult.length);
+
             const profiles = parsedResult.map((item) => {
                 const data = item.string_list_data[0];
                 const {value: username} = data;
                 const connectedAt = data.timestamp * 1000;
                 return new Profile(username, connectedAt);
             });
+            console.log('Profiles created:', profiles.length);
 
             // Remove existing profiles of this type
             const isFollowerFile = file.name === followersJsonFileName;
             const updatedProfiles = allProfiles.filter(p =>
                 isFollowerFile ? p.type !== 'follower' : p.type !== 'following'
             );
+            console.log('Filtered existing profiles:', updatedProfiles.length);
 
             // Save new profiles
             await Promise.all(
@@ -153,21 +190,28 @@ const Sync = () => {
                     id: p.username
                 }))
             );
+            console.log('Saved new profiles');
 
             // Add file to uploaded files set
             const newUploadedFiles = new Set(uploadedFiles);
             newUploadedFiles.add(file.name);
             setUploadedFiles(newUploadedFiles);
+            console.log('Current uploaded files:', Array.from(newUploadedFiles));
 
-            notification.success({
-                message: `File ${file.name} processed`,
-                description: `${profiles.length} profiles updated!`,
-            });
+            // Only show notification for the second file upload
+            if (newUploadedFiles.size === 2) {
+                notification.success({
+                    message: 'Files processed',
+                    description: 'Both files uploaded successfully. Processing data...',
+                });
+            }
 
             // Only recompute data when both files are uploaded
             if (newUploadedFiles.size === 2) {
+                console.log('Both files uploaded, starting recompute');
                 // Get all profiles including the newly added ones
                 const allUpdatedProfiles = [...updatedProfiles, ...profiles];
+                console.log('Total profiles for recompute:', allUpdatedProfiles.length);
                 await recomputeData(allUpdatedProfiles);
             } else {
                 notification.info({
@@ -178,6 +222,7 @@ const Sync = () => {
 
             return false; // Prevent default upload
         } catch (error) {
+            console.error('Error in handleUpload:', error);
             notification.error({
                 message: 'Error processing file',
                 description: error.message
