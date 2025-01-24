@@ -245,20 +245,22 @@ const Sync = () => {
                     </Button>
 
                     <Dragger
-                        {...{
-                            name: 'file',
-                            multiple: true,
-                            onDrop: (e) => {
-                                Array.from(e.dataTransfer.files).forEach((file) => {
-                                    handleUpload(file);
-                                });
-                            },
+                        name="file"
+                        multiple={true}
+                        beforeUpload={(file) => {
+                            handleUpload(file);
+                            return false; // Prevent default upload behavior
                         }}
+                        accept=".json"
+                        showUploadList={false}
                     >
                         <p className="ant-upload-drag-icon">
                             <InboxOutlined/>
                         </p>
-                        <p className="ant-upload-text">Drop followers and following json files here.</p>
+                        <p className="ant-upload-text">Click or drag followers.json and following.json files here</p>
+                        <p className="ant-upload-hint">
+                            Upload the JSON files from your Instagram data download
+                        </p>
                     </Dragger>
                 </Space>
             </div>
