@@ -32,11 +32,15 @@ const Sync = () => {
     // Get config values from IndexedDB
     const lastUpdateAt = configData.find(c => c.id === 'lastUpdateAt')?.value || null;
 
+    // If we have data in any store, show the last update time and counts
+    const hasData = allProfiles.length > 0 || followers.length > 0 || unfollowers.length > 0;
+
     const recomputeData = async allProfiles => {
         try {
             // Clear existing data
             await clearFollowers();
             await clearUnfollowers();
+            await clearProfiles();
 
             // Get follower and following usernames from profiles
             const followerUsernames = allProfiles
@@ -61,20 +65,30 @@ const Sync = () => {
                 throw new Error(processedData.error);
             }
 
-            // Save processed data to IndexedDB
+            // First save all profiles to the PROFILES store
+            await Promise.all(
+                allProfiles.map(p => saveProfile({
+                    ...p,
+                    id: p.username
+                }))
+            );
+
+            // Save processed data to respective stores
             await Promise.all([
                 // Save followers (mutual followers)
                 ...processedData.followerProfiles.map(p => saveFollower({
                     ...p,
                     id: p.username,
-                    type: 'mutual'
+                    type: 'mutual',
+                    connectedAt: allProfiles.find(ap => ap.username === p.username)?.connectedAt || Date.now()
                 })),
                 // Save unfollowers
                 ...processedData.unfollowerProfiles.map(p => saveUnfollower({
                     ...p,
                     id: p.username,
                     type: 'unfollower',
-                    unfollowedAt: Date.now() // Add unfollowed timestamp
+                    connectedAt: allProfiles.find(ap => ap.username === p.username)?.connectedAt || Date.now(),
+                    unfollowedAt: Date.now()
                 }))
             ]);
 
@@ -176,7 +190,14 @@ const Sync = () => {
         <div>
             <div>
                 {lastUpdateAt ? (
-                    <div>Last update at {new Date(lastUpdateAt).toString()}</div>
+                    <div>
+                        Last update at {new Date(lastUpdateAt).toString()}
+                        {hasData && (
+                            <div>
+                                Current stats: {followers.length} mutuals, {unfollowers.length} unfollowers, {allProfiles.length} total profiles
+                            </div>
+                        )}
+                    </div>
                 ) : (
                     <div>Upload your followers and following data to get started!</div>
                 )}
