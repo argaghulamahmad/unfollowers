@@ -1,6 +1,13 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import { Layout, message } from 'antd';
+import { BrowserRouter as Router, Route, Switch, useHistory, useLocation } from 'react-router-dom';
+import { Layout, Menu, message } from 'antd';
+import {
+    BarChartOutlined,
+    SyncOutlined,
+    LineChartOutlined,
+    SettingOutlined,
+    DatabaseOutlined
+} from '@ant-design/icons';
 import Sync from './components/Sync';
 import Stats from './components/Stats';
 import Insight from './components/Insight';
@@ -8,7 +15,30 @@ import Config from './components/Config';
 import DataManagement from './components/DataManagement';
 import { initWasm } from './utils/wasmUtils';
 
-const { Content } = Layout;
+const { Header, Content } = Layout;
+
+const NavigationMenu = () => {
+    const history = useHistory();
+    const location = useLocation();
+
+    const menuItems = [
+        { key: '/', label: 'Stats', icon: <BarChartOutlined /> },
+        { key: '/sync', label: 'Sync', icon: <SyncOutlined /> },
+        { key: '/insight', label: 'Insight', icon: <LineChartOutlined /> },
+        { key: '/config', label: 'Config', icon: <SettingOutlined /> },
+        { key: '/manage', label: 'Data Management', icon: <DatabaseOutlined /> }
+    ];
+
+    return (
+        <Menu
+            theme="dark"
+            mode="horizontal"
+            selectedKeys={[location.pathname]}
+            items={menuItems}
+            onClick={({ key }) => history.push(key)}
+        />
+    );
+};
 
 const App = () => {
     useEffect(() => {
@@ -22,7 +52,10 @@ const App = () => {
     return (
         <Router>
             <Layout>
-                <Content style={{ padding: '50px' }}>
+                <Header>
+                    <NavigationMenu />
+                </Header>
+                <Content style={{ padding: '24px', minHeight: 'calc(100vh - 64px)' }}>
                     <Switch>
                         <Route exact path="/" component={Stats} />
                         <Route path="/sync" component={Sync} />
