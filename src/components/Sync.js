@@ -142,8 +142,19 @@ const Sync = () => {
 
             // Save processed data to IndexedDB
             await Promise.all([
-                ...processedData.followerProfiles.map(p => saveFollower(p)),
-                ...processedData.unfollowerProfiles.map(p => saveUnfollower(p))
+                // Save followers (mutual followers)
+                ...processedData.followerProfiles.map(p => saveFollower({
+                    ...p,
+                    id: p.username,
+                    type: 'mutual'
+                })),
+                // Save unfollowers
+                ...processedData.unfollowerProfiles.map(p => saveUnfollower({
+                    ...p,
+                    id: p.username,
+                    type: 'unfollower',
+                    unfollowedAt: Date.now() // Add unfollowed timestamp
+                }))
             ]);
 
             // Update last update timestamp
@@ -221,6 +232,7 @@ const Sync = () => {
 
             // Only recompute data when both files are uploaded
             if (newUploadedFiles.size === 2) {
+                // Get all profiles including the newly added ones
                 const allUpdatedProfiles = [...updatedProfiles, ...profiles];
                 await recomputeData(allUpdatedProfiles);
             } else {
