@@ -1,23 +1,31 @@
-// Load the WASM module
-export const initWasm = async () => {
-    if (!WebAssembly.instantiateStreaming) {
-        // Polyfill for browsers that don't support instantiateStreaming
-        WebAssembly.instantiateStreaming = async (resp, importObject) => {
-            const source = await (await resp).arrayBuffer();
-            return await WebAssembly.instantiate(source, importObject);
-        };
+// Load the Go WASM executor
+const initGoWasm = async () => {
+    if (!window.Go) {
+        // Load wasm_exec.js script
+        const script = document.createElement('script');
+        script.src = '/wasm_exec.js';
+        script.async = true;
+        await new Promise((resolve, reject) => {
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
     }
+};
+
+export const initWasm = async () => {
+    await initGoWasm();
+    const go = new window.Go();
 
     try {
-        const go = new Go();
         const result = await WebAssembly.instantiateStreaming(
-            fetch('/wasm/compare.wasm'),
+            fetch('/main.wasm'),
             go.importObject
         );
         go.run(result.instance);
-        console.log('WASM module loaded successfully');
+        return true;
     } catch (error) {
-        console.error('Failed to load WASM module:', error);
+        console.error('Failed to initialize WASM:', error);
         throw error;
     }
 };
