@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {InboxOutlined} from '@ant-design/icons';
-import {Upload, notification, Button, Divider, Space} from 'antd';
+import {Upload, notification, Button, Divider, Space, Progress} from 'antd';
 import {
     acceptedUploadedFilenames,
     followersJsonFileName,
@@ -20,6 +20,12 @@ class Profile {
 
 const Sync = () => {
     const [uploadedFiles, setUploadedFiles] = useState(new Set());
+    const [progress, setProgress] = useState({
+        status: '',
+        percent: 0,
+        subStatus: ''
+    });
+    const [isProcessing, setIsProcessing] = useState(false);
 
     const { saveItem: saveFollower, clearAll: clearFollowers } = useIndexedDB(STORES.FOLLOWERS);
     const { saveItem: saveUnfollower, clearAll: clearUnfollowers } = useIndexedDB(STORES.UNFOLLOWERS);
@@ -36,15 +42,18 @@ const Sync = () => {
     const hasData = allProfiles.length > 0 || followers.length > 0 || unfollowers.length > 0;
 
     const recomputeData = async allProfiles => {
+        setIsProcessing(true);
         console.log('Starting recomputeData with profiles:', allProfiles.length);
         console.log('Profile types:', allProfiles.map(p => p.type));
         try {
+            setProgress({ status: 'Clearing existing data', percent: 5, subStatus: 'Preparing database...' });
             // Clear existing data
             await clearFollowers();
             await clearUnfollowers();
             await clearProfiles();
             console.log('Cleared existing data');
 
+            setProgress({ status: 'Processing profiles', percent: 10, subStatus: 'Analyzing data...' });
             // Get follower and following usernames from profiles
             const followerUsernames = allProfiles
                 .filter(p => p.type === 'follower')
@@ -59,6 +68,7 @@ const Sync = () => {
                 total: allProfiles.length
             });
 
+            setProgress({ status: 'Running WASM computations', percent: 30, subStatus: 'Finding unfollowers and mutuals...' });
             // Call WASM module for heavy computations
             console.log('Calling WASM module');
             const result = await window.processProfiles(
@@ -68,6 +78,7 @@ const Sync = () => {
             );
             console.log('WASM processing complete');
 
+            setProgress({ status: 'Processing results', percent: 60, subStatus: 'Analyzing results...' });
             // Parse the result
             const processedData = JSON.parse(result);
             console.log('Processed data:', {
@@ -81,6 +92,7 @@ const Sync = () => {
                 throw new Error(processedData.error);
             }
 
+            setProgress({ status: 'Saving profiles', percent: 70, subStatus: 'Updating database...' });
             // First save all profiles to the PROFILES store
             await Promise.all(
                 allProfiles.map(p => saveProfile({
@@ -90,6 +102,7 @@ const Sync = () => {
             );
             console.log('Saved all profiles');
 
+            setProgress({ status: 'Saving results', percent: 85, subStatus: 'Almost done...' });
             // Save processed data to respective stores
             const savePromises = [
                 // Save followers (mutual followers)
@@ -115,9 +128,12 @@ const Sync = () => {
                 unfollowerCount: processedData.unfollowerProfiles.length
             });
 
+            setProgress({ status: 'Finalizing', percent: 95, subStatus: 'Wrapping up...' });
             // Update last update timestamp
             const timestamp = Date.now();
             await saveConfig({ key: 'lastUpdateAt', value: timestamp, id: 'lastUpdateAt' });
+
+            setProgress({ status: 'Complete', percent: 100, subStatus: 'Done!' });
 
             // Show final success notification with stats
             notification.success({
@@ -142,6 +158,9 @@ const Sync = () => {
                 message: 'Failed to process profiles',
                 description: error.message
             });
+            setProgress({ status: 'Error', percent: 0, subStatus: error.message });
+        } finally {
+            setIsProcessing(false);
         }
     };
 
@@ -156,6 +175,7 @@ const Sync = () => {
         }
 
         try {
+            setProgress({ status: 'Reading file', percent: 0, subStatus: `Reading ${file.name}...` });
             const result = await new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onload = (evt) => resolve(evt.target.result);
@@ -164,9 +184,11 @@ const Sync = () => {
             });
 
             console.log('File read successfully');
+            setProgress({ status: 'Parsing file', percent: 30, subStatus: 'Processing JSON data...' });
             const parsedResult = JSON.parse(result);
             console.log('File parsed, number of items:', parsedResult.length);
 
+            setProgress({ status: 'Creating profiles', percent: 60, subStatus: 'Converting data...' });
             const profiles = parsedResult.map((item) => {
                 const data = item.string_list_data[0];
                 const {value: username} = data;
@@ -182,6 +204,7 @@ const Sync = () => {
             );
             console.log('Filtered existing profiles:', updatedProfiles.length);
 
+            setProgress({ status: 'Saving profiles', percent: 80, subStatus: 'Updating database...' });
             // Save new profiles
             await Promise.all(
                 profiles.map(p => saveProfile({
@@ -197,6 +220,8 @@ const Sync = () => {
             newUploadedFiles.add(file.name);
             setUploadedFiles(newUploadedFiles);
             console.log('Current uploaded files:', Array.from(newUploadedFiles));
+
+            setProgress({ status: 'Complete', percent: 100, subStatus: 'File processed successfully' });
 
             // Only show notification for the second file upload
             if (newUploadedFiles.size === 2) {
@@ -227,6 +252,7 @@ const Sync = () => {
                 message: 'Error processing file',
                 description: error.message
             });
+            setProgress({ status: 'Error', percent: 0, subStatus: error.message });
             return false;
         }
     };
@@ -250,6 +276,16 @@ const Sync = () => {
             <div>
                 <Divider orientation="left">Upload Data</Divider>
                 <Space direction="vertical" size="middle" style={{display: 'flex'}}>
+                    {(progress.percent > 0 || isProcessing) && (
+                        <div>
+                            <div style={{ marginBottom: '8px' }}>
+                                <strong>{progress.status}</strong>
+                                <div style={{ fontSize: '12px', color: '#666' }}>{progress.subStatus}</div>
+                            </div>
+                            <Progress percent={progress.percent} status={progress.status === 'Error' ? 'exception' : undefined} />
+                        </div>
+                    )}
+
                     <Button
                         type="primary"
                         style={{width: '100%'}}
@@ -275,6 +311,7 @@ const Sync = () => {
                         beforeUpload={handleUpload}
                         accept=".json"
                         showUploadList={false}
+                        disabled={isProcessing}
                     >
                         <p className="ant-upload-drag-icon">
                             <InboxOutlined/>
