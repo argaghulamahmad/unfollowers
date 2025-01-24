@@ -12,17 +12,17 @@ type User struct {
 }
 
 // FetchMutualFollowers returns a list of mutual followers
-func FetchMutualFollowers(followings, followers []User) []User {
+func FetchMutualFollowers(followers, followings []User) []User {
 	mutual := []User{}
 	followersMap := make(map[string]bool)
 
 	// Store followers in a map
-	for _, user := range followings {
+	for _, user := range followers {
 		followersMap[user.Username] = true
 	}
 
 	// Check if followers are in the followings
-	for _, user := range followers {
+	for _, user := range followings {
 		if followersMap[user.Username] {
 			mutual = append(mutual, user)
 		}
@@ -31,7 +31,7 @@ func FetchMutualFollowers(followings, followers []User) []User {
 }
 
 // FetchUnfollowers returns a list of unfollowers
-func FetchUnfollowers(followings, followers []User) []User {
+func FetchUnfollowers(followers, followings []User) []User {
 	unfollowers := []User{}
 	followersMap := make(map[string]bool)
 
@@ -50,7 +50,7 @@ func FetchUnfollowers(followings, followers []User) []User {
 }
 
 // FetchFollowbacks returns a list of followbacks
-func FetchFollowbacks(followings, followers []User) []User {
+func FetchFollowbacks(followers, followings []User) []User {
 	followbacks := []User{}
 	followersMap := make(map[string]bool)
 
@@ -136,9 +136,9 @@ func processProfiles(this js.Value, args []js.Value) interface{} {
 	}
 
 	// Use helper functions to compute relationships
-	mutuals := FetchMutualFollowers(followings, followers)
-	unfollowers := FetchUnfollowers(followings, followers)
-	followbacks := FetchFollowbacks(followings, followers)
+	mutuals := FetchMutualFollowers(followers, followings)
+	unfollowers := FetchUnfollowers(followers, followings)
+	followbacks := FetchFollowbacks(followers, followings)
 
 	// Extract usernames
 	mutualUsernames := make([]string, len(mutuals))
