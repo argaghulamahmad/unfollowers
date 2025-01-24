@@ -1,8 +1,9 @@
 import React, { useMemo, useCallback } from 'react';
-import { Card, Spin, Empty, Row, Col, Statistic, Button, Table, Progress } from 'antd';
+import { Card, Spin, Empty, Row, Col, Statistic, Button, List, Progress } from 'antd';
 import { UserOutlined, UserDeleteOutlined, DownloadOutlined } from '@ant-design/icons';
 import { useIndexedDB } from '../hooks/useIndexedDB';
 import { STORES } from '../utils/indexedDBUtils';
+import VirtualList from './VirtualList';
 
 const Stats = () => {
     const {
@@ -65,123 +66,102 @@ const Stats = () => {
         }
     }, [followers, unfollowers, stats]);
 
-    const unfollowerColumns = [
-        {
-            title: 'Username',
-            dataIndex: 'username',
-            key: 'username',
-            render: (text) => text ? (
-                <a href={`https://instagram.com/${text}`} target="_blank" rel="noreferrer">{text}</a>
-            ) : 'Unknown'
-        },
-        {
-            title: 'Unfollowed Date',
-            dataIndex: 'unfollowedAt',
-            key: 'unfollowedAt',
-            render: (date) => {
-                try {
-                    return date ? new Date(date).toLocaleDateString() : 'Unknown';
-                } catch (error) {
-                    return 'Invalid Date';
-                }
-            }
-        }
-    ];
+    const renderFollowerItem = (item) => (
+        <List.Item>
+            <List.Item.Meta
+                avatar={<UserOutlined />}
+                title={item.username}
+                description={`Connected since: ${new Date(item.connectedAt).toLocaleDateString()}`}
+            />
+        </List.Item>
+    );
+
+    const renderUnfollowerItem = (item) => (
+        <List.Item>
+            <List.Item.Meta
+                avatar={<UserDeleteOutlined />}
+                title={item.username}
+                description={`Unfollowed on: ${new Date(item.unfollowedAt).toLocaleDateString()}`}
+            />
+        </List.Item>
+    );
 
     if (followersLoading || unfollowersLoading) {
-        return <Spin size="large" />;
+        return <div className="loading-container"><Spin size="large" /></div>;
     }
 
     if (followersError || unfollowersError) {
-        return <div>Error loading data. Please try again later.</div>;
-    }
-
-    if (!followers.length && !unfollowers.length) {
-        return (
-            <Empty
-                description="No follower data available yet"
-                image={Empty.PRESENTED_IMAGE_SIMPLE}
-            />
-        );
+        return <Empty description="Error loading data" />;
     }
 
     return (
         <div className="stats-container">
-            <Row gutter={[16, 16]}>
-                <Col span={24}>
-                    <Button
-                        type="primary"
-                        icon={<DownloadOutlined />}
-                        onClick={handleExportData}
-                        style={{ marginBottom: 16 }}
-                    >
-                        Export Data
-                    </Button>
-                </Col>
+            {stats && (
+                <Row gutter={16} className="stats-summary">
+                    <Col span={8}>
+                        <Card>
+                            <Statistic
+                                title="Total Profiles"
+                                value={stats.totalProfiles}
+                                prefix={<UserOutlined />}
+                            />
+                        </Card>
+                    </Col>
+                    <Col span={8}>
+                        <Card>
+                            <Statistic
+                                title="Retention Rate"
+                                value={stats.retentionRate}
+                                suffix="%"
+                                precision={2}
+                            />
+                            <Progress percent={stats.retentionRate} showInfo={false} />
+                        </Card>
+                    </Col>
+                    <Col span={8}>
+                        <Card>
+                            <Statistic
+                                title="Churn Rate"
+                                value={stats.churnRate}
+                                suffix="%"
+                                precision={2}
+                            />
+                            <Progress percent={stats.churnRate} showInfo={false} status="exception" />
+                        </Card>
+                    </Col>
+                </Row>
+            )}
 
-                <Col xs={24} sm={12}>
-                    <Card>
-                        <Statistic
-                            title="Current Followers"
-                            value={followers.length}
-                            prefix={<UserOutlined />}
+            <Row gutter={16} style={{ marginTop: '24px' }}>
+                <Col span={12}>
+                    <Card title="Followers" extra={<span>{followers?.length || 0} followers</span>}>
+                        <VirtualList
+                            data={followers || []}
+                            renderItem={renderFollowerItem}
+                            className="followers-list"
                         />
                     </Card>
                 </Col>
-
-                <Col xs={24} sm={12}>
-                    <Card>
-                        <Statistic
-                            title="Total Unfollowers"
-                            value={unfollowers.length}
-                            prefix={<UserDeleteOutlined />}
-                            valueStyle={{ color: '#cf1322' }}
+                <Col span={12}>
+                    <Card title="Unfollowers" extra={<span>{unfollowers?.length || 0} unfollowers</span>}>
+                        <VirtualList
+                            data={sortedUnfollowers}
+                            renderItem={renderUnfollowerItem}
+                            className="unfollowers-list"
                         />
                     </Card>
                 </Col>
+            </Row>
 
-                {stats && (
-                    <>
-                        <Col xs={24} sm={12}>
-                            <Card title="Follower Retention">
-                                <Progress
-                                    type="circle"
-                                    percent={stats.retentionRate}
-                                    format={percent => `${percent}%`}
-                                    status="active"
-                                />
-                                <p style={{ marginTop: 16 }}>
-                                    Of {stats.totalProfiles} total profiles tracked
-                                </p>
-                            </Card>
-                        </Col>
-
-                        <Col xs={24} sm={12}>
-                            <Card title="Churn Rate">
-                                <Progress
-                                    type="circle"
-                                    percent={stats.churnRate}
-                                    format={percent => `${percent}%`}
-                                    status="exception"
-                                />
-                                <p style={{ marginTop: 16 }}>
-                                    Lost followers percentage
-                                </p>
-                            </Card>
-                        </Col>
-                    </>
-                )}
-
-                <Col span={24}>
-                    <Card title="Recent Unfollowers">
-                        <Table
-                            dataSource={sortedUnfollowers}
-                            columns={unfollowerColumns}
-                            pagination={{ pageSize: 5 }}
-                            rowKey="id"
-                        />
-                    </Card>
-                </Col>
+            <Row justify="center" style={{ marginTop: '24px' }}>
+                <Button
+                    type="primary"
+                    icon={<DownloadOutlined />}
+                    onClick={handleExportData}
+                    disabled={!stats}
+                >
+                    Export Data
+                </Button>
             </Row>
         </div>
     );

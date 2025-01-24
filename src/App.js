@@ -9,10 +9,24 @@ import {
     DatabaseOutlined
 } from '@ant-design/icons';
 import { initWasm } from './utils/wasmUtils';
+import ErrorBoundary from './components/ErrorBoundary';
 import './styles/App.css';
 import './styles/Upload.css';
 
 const { Header, Content } = Layout;
+
+// Register service worker
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/serviceWorker.js')
+            .then(registration => {
+                console.log('ServiceWorker registration successful');
+            })
+            .catch(err => {
+                console.log('ServiceWorker registration failed: ', err);
+            });
+    });
+}
 
 // Lazy load components
 const Stats = lazy(() => import('./components/Stats'));
@@ -48,30 +62,32 @@ const App = () => {
     useEffect(() => {
         // Initialize WASM module
         initWasm().catch(error => {
-            console.error('Failed to initialize WASM:', error);
-            message.error('Failed to initialize application. Please refresh the page.');
+            message.error('Failed to initialize WASM module');
+            console.error('WASM initialization error:', error);
         });
     }, []);
 
     return (
-        <Router>
-            <Layout>
-                <Header>
-                    <NavigationMenu />
-                </Header>
-                <Content style={{ padding: '24px', minHeight: 'calc(100vh - 64px)' }}>
-                    <Suspense fallback={<div style={{ textAlign: 'center', padding: '50px' }}><Spin size="large" /></div>}>
-                        <Switch>
-                            <Route exact path="/" component={Stats} />
-                            <Route path="/sync" component={Sync} />
-                            <Route path="/insight" component={Insight} />
-                            <Route path="/config" component={Config} />
-                            <Route path="/manage" component={DataManagement} />
-                        </Switch>
-                    </Suspense>
-                </Content>
-            </Layout>
-        </Router>
+        <ErrorBoundary>
+            <Router>
+                <Layout className="layout">
+                    <Header>
+                        <NavigationMenu />
+                    </Header>
+                    <Content style={{ padding: '0 50px', marginTop: 64 }}>
+                        <Suspense fallback={<div className="loading-container"><Spin size="large" /></div>}>
+                            <Switch>
+                                <Route exact path="/" component={Stats} />
+                                <Route path="/sync" component={Sync} />
+                                <Route path="/insight" component={Insight} />
+                                <Route path="/config" component={Config} />
+                                <Route path="/manage" component={DataManagement} />
+                            </Switch>
+                        </Suspense>
+                    </Content>
+                </Layout>
+            </Router>
+        </ErrorBoundary>
     );
 };
 
