@@ -170,7 +170,8 @@ const Sync = () => {
                         const followerProfiles = followersJsonParsedResult.map((item) => {
                             const data = item.string_list_data[0];
                             const {value: username} = data;
-                            const {timestamp: connectedAt} = data;
+                            // Convert timestamp to milliseconds for consistency
+                            const connectedAt = data.timestamp * 1000;
                             return new Profile(username, connectedAt);
                         });
 
@@ -195,7 +196,8 @@ const Sync = () => {
                         const followingProfiles = followingJsonParsedResult.map((item) => {
                             const data = item.string_list_data[0];
                             const {value: username} = data;
-                            const {timestamp: connectedAt} = data;
+                            // Convert timestamp to milliseconds for consistency
+                            const connectedAt = data.timestamp * 1000;
                             return new Profile(username, connectedAt);
                         });
 

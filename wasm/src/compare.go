@@ -68,9 +68,11 @@ func FetchFollowbacks(followings, followers []User) []User {
 	return followbacks
 }
 
+// Profile represents a user profile with timestamps
 type Profile struct {
-	Username    string `json:"username"`
-	ConnectedAt int64  `json:"connectedAt"`
+	Username     string `json:"username"`
+	ConnectedAt  int64  `json:"connectedAt"`
+	UnfollowedAt int64  `json:"unfollowedAt,omitempty"`
 }
 
 type ProcessedData struct {
@@ -151,19 +153,22 @@ func processProfiles(this js.Value, args []js.Value) interface{} {
 	}
 
 	// Create profile collections
-	createProfiles := func(usernames []string) []Profile {
+	createProfiles := func(usernames []string, isUnfollower bool) []Profile {
 		profiles := make([]Profile, 0, len(usernames))
 		for _, username := range usernames {
 			if profile, exists := profileMap[username]; exists {
+				if isUnfollower {
+					profile.UnfollowedAt = time.Now().UnixMilli()
+				}
 				profiles = append(profiles, profile)
 			}
 		}
 		return profiles
 	}
 
-	followbackProfiles := createProfiles(followbackUsernames)
-	unfollowerProfiles := createProfiles(unfollowerUsernames)
-	mutualProfiles := createProfiles(mutualUsernames)
+	followbackProfiles := createProfiles(followbackUsernames, false)
+	unfollowerProfiles := createProfiles(unfollowerUsernames, true)
+	mutualProfiles := createProfiles(mutualUsernames, false)
 
 	// Prepare result
 	result := ProcessedData{
